@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BRC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#0a0a0f',
+                        fg: '#e8e8ed',
+                        muted: '#6b7280',
+                        accent: '#00d4aa',
+                        card: '#14141f',
+                        border: '#2a2a3a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Space Grotesk', sans-serif; }
+        body { background: #0a0a0f; }
+        
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 212, 170, 0.3);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.3);
+        }
+        
+        .questionnaire-card {
+            transition: all 0.3s ease;
+        }
+        
+        .questionnaire-card:hover {
+            border-color: #00d4aa;
+            transform: translateY(-2px);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #00d4aa, #00a88a);
+        }
+    </style>
+</head>
+<body class="text-fg min-h-screen">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-bg/80 backdrop-blur-xl border-b border-border">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/dashboard" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-emerald-600 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <span class="font-display font-semibold text-xl">BRC</span>
+                </a>
+                <div class="flex items-center gap-4">
+                    <span class="text-muted text-sm">{{.User.Email}}</span>
+                    <a href="/logout" class="px-4 py-2 text-muted hover:text-fg border border-border rounded-lg hover:border-accent transition-colors">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
+            <div>
+                <h1 class="font-display text-3xl font-bold mb-2">Dashboard</h1>
+                <p class="text-muted">Kelola questionnaire dan lihat progress client</p>
+            </div>
+            <a href="/questionnaire/create" class="btn-primary px-6 py-3 rounded-xl font-semibold text-bg inline-flex items-center gap-2 w-fit">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Buat Questionnaire
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+            <div class="stat-card bg-card rounded-2xl border border-border p-6">
+                <div class="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div class="font-display text-3xl font-bold mb-1">{{.Stats.TotalQuestionnaires}}</div>
+                <div class="text-muted text-sm">Total Questionnaire</div>
+            </div>
+            
+            <div class="stat-card bg-card rounded-2xl border border-border p-6">
+                <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="font-display text-3xl font-bold mb-1">{{.Stats.TotalQuestions}}</div>
+                <div class="text-muted text-sm">Total Pertanyaan</div>
+            </div>
+            
+            <div class="stat-card bg-card rounded-2xl border border-border p-6">
+                <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <div class="font-display text-3xl font-bold mb-1">{{.Stats.TotalResponses}}</div>
+                <div class="text-muted text-sm">Total Respon</div>
+            </div>
+            
+            <div class="stat-card bg-card rounded-2xl border border-border p-6">
+                <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="font-display text-3xl font-bold mb-1">{{.Stats.CompletedResponses}}</div>
+                <div class="text-muted text-sm">Selesai</div>
+            </div>
+        </div>
+
+        <!-- Questionnaires List -->
+        <div>
+            <h2 class="font-display text-xl font-semibold mb-6">Questionnaire Anda</h2>
+            
+            {{if .Questionnaires}}
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {{range .Questionnaires}}
+                <a href="/questionnaire/{{.ID}}" class="questionnaire-card bg-card rounded-2xl border border-border p-6 block">
+                    <div class="flex items-start justify-between mb-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-medium {{if eq .Status "active"}}bg-accent/10 text-accent{{else}}bg-yellow-500/10 text-yellow-400{{end}}">
+                            {{.Status}}
+                        </span>
+                        <span class="text-muted text-sm">{{.TotalQuestions}} pertanyaan</span>
+                    </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">{{.Title}}</h3>
+                    <p class="text-muted text-sm mb-4 line-clamp-2">{{.Description}}</p>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-muted">{{.TotalResponses}} respon</span>
+                        <span class="text-accent">Lihat detail →</span>
+                    </div>
+                </a>
+                {{end}}
+            </div>
+            {{else}}
+            <div class="bg-card rounded-2xl border border-border border-dashed p-12 text-center">
+                <div class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="font-display text-xl font-semibold mb-2">Belum ada questionnaire</h3>
+                <p class="text-muted mb-6">Buat questionnaire pertama Anda untuk memulai</p>
+                <a href="/questionnaire/create" class="btn-primary px-6 py-3 rounded-xl font-semibold text-bg inline-flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Buat Questionnaire
+                </a>
+            </div>
+            {{end}}
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terima Kasih - BRC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#0a0a0f',
+                        fg: '#e8e8ed',
+                        muted: '#6b7280',
+                        accent: '#00d4aa',
+                        card: '#14141f',
+                        border: '#2a2a3a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Space Grotesk', sans-serif; }
+        body { background: #0a0a0f; }
+        
+        .success-bg {
+            background: 
+                radial-gradient(ellipse at 50% 50%, rgba(0, 212, 170, 0.15) 0%, transparent 60%),
+                linear-gradient(180deg, #0a0a0f 0%, #0f0f18 100%);
+        }
+        
+        .checkmark-circle {
+            animation: scaleIn 0.5s ease forwards;
+        }
+        
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .checkmark {
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: draw 0.5s ease forwards 0.3s;
+        }
+        
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+            opacity: 0;
+        }
+        
+        .delay-1 { animation-delay: 0.5s; }
+        .delay-2 { animation-delay: 0.7s; }
+        .delay-3 { animation-delay: 0.9s; }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="text-fg min-h-screen success-bg flex items-center justify-center">
+    <div class="max-w-xl mx-auto px-6 py-12 text-center">
+        <!-- Success Icon -->
+        <div class="checkmark-circle w-24 h-24 mx-auto mb-8 rounded-full bg-gradient-to-br from-accent/20 to-emerald-600/20 flex items-center justify-center">
+            <svg class="w-12 h-12 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path class="checkmark" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+        
+        <!-- Content -->
+        <h1 class="fade-in delay-1 font-display text-3xl md:text-4xl font-bold mb-4">
+            Terima Kasih!
+        </h1>
+        
+        <p class="fade-in delay-2 text-xl text-muted mb-6">
+            Questionnaire "{{.Questionnaire.Title}}" telah berhasil dikirim.
+        </p>
+        
+        <p class="fade-in delay-2 text-muted mb-10 max-w-md mx-auto">
+            Jawaban Anda akan digunakan untuk menyusun dokumen Business Modeling dan System Requirement Modeling. Tim developer akan segera menghubungi Anda.
+        </p>
+        
+        <!-- Info Card -->
+        <div class="fade-in delay-3 bg-card rounded-2xl border border-border p-6 mb-8">
+            <div class="flex items-center justify-center gap-3 text-muted">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                <span>Anda akan menerima email konfirmasi</span>
+            </div>
+        </div>
+        
+        <!-- Powered By -->
+        <div class="fade-in delay-3 text-sm text-muted">
+            <span>Powered by</span>
+            <span class="text-accent ml-1">Business Requirement Collector</span>
+        </div>
+    </div>
+</body>
+</html>

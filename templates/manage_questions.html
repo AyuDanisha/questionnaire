@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Pertanyaan - BRC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#0a0a0f', fg: '#e8e8ed', muted: '#6b7280', accent: '#00d4aa',
+                        card: '#14141f', border: '#2a2a3a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Space Grotesk', sans-serif; } body { background: #0a0a0f; }
+        .btn-primary { background: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%); }
+        .btn-primary:hover { box-shadow: 0 10px 40px rgba(0, 212, 170, 0.3); }
+        .input-field:focus { border-color: #00d4aa; box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1); }
+        .question-row:hover { background: rgba(0, 212, 170, 0.03); }
+    </style>
+</head>
+<body class="text-fg min-h-screen">
+    <!-- Nav -->
+    <nav class="sticky top-0 z-50 bg-bg/80 backdrop-blur-xl border-b border-border">
+        <div class="max-w-5xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/dashboard" class="flex items-center gap-3 text-fg">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-emerald-600 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <span class="font-display font-semibold text-xl">BRC</span>
+                </a>
+                <a href="/dashboard" class="text-muted hover:text-fg text-sm">← Kembali ke Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-6 py-10">
+        <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="font-display text-3xl font-bold mb-1">{{.Questionnaire.Title}}</h1>
+                <p class="text-muted">
+                    Status: 
+                    <span class="{{if eq .Questionnaire.Status "active"}}text-accent{{else}}text-yellow-400{{end}} font-medium">
+                        {{.Questionnaire.Status}}
+                    </span>
+                </p>
+            </div>
+            <div class="flex gap-3">
+                {{if eq .Questionnaire.Status "draft"}}
+                <form method="POST" action="">
+                    <input type="hidden" name="action" value="publish">
+                    <button type="submit" class="btn-primary px-6 py-2 rounded-lg font-semibold text-bg text-sm">
+                        Publish Questionnaire
+                    </button>
+                </form>
+                {{end}}
+                <a href="/questionnaire/{{.Questionnaire.ID}}" class="px-4 py-2 border border-border rounded-lg text-sm hover:border-accent">
+                    Lihat Detail
+                </a>
+            </div>
+        </div>
+
+        <!-- Add Question Form -->
+        <div class="bg-card rounded-2xl border border-border p-6 mb-8">
+            <h2 class="font-semibold text-lg mb-4">Tambah Pertanyaan Baru</h2>
+            <form method="POST" action="" class="space-y-4">
+                <input type="hidden" name="action" value="add">
+                
+                <div class="grid md:grid-cols-12 gap-4 items-end">
+                    <div class="md:col-span-7">
+                        <label class="block text-sm font-medium mb-2">Pertanyaan</label>
+                        <input type="text" name="question_text" required
+                            class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl outline-none"
+                            placeholder="Tulis pertanyaan...">
+                    </div>
+                    
+                    <div class="md:col-span-3">
+                        <label class="block text-sm font-medium mb-2">Kategori</label>
+                        <select name="category" required class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl outline-none">
+                            <option value="BM">Business Modeling</option>
+                            <option value="SRM">System Requirement</option>
+                        </select>
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <button type="submit" class="btn-primary w-full py-3 rounded-xl font-semibold text-bg">
+                            + Tambah
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Question List -->
+        <div class="bg-card rounded-2xl border border-border overflow-hidden">
+            <div class="p-4 border-b border-border flex justify-between items-center bg-bg/30">
+                <h2 class="font-semibold">Daftar Pertanyaan ({{len .Questions}})</h2>
+                <span class="text-xs text-muted">Klik ikon pensil untuk mengedit</span>
+            </div>
+            
+            {{if .Questions}}
+            <div class="divide-y divide-border">
+                {{range $index, $q := .Questions}}
+                
+                <!-- Normal View Mode -->
+                <div id="view-{{$q.ID}}" class="question-row p-4 flex items-center gap-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-bg flex items-center justify-center font-mono text-sm text-muted">
+                        {{add $index 1}}
+                    </div>
+                    <div class="flex-1">
+                        <p class="mb-1" id="text-{{$q.ID}}">{{$q.QuestionText}}</p>
+                        <span class="text-xs px-2 py-1 rounded {{if eq $q.Category "BM"}}bg-accent/10 text-accent{{else}}bg-blue-500/10 text-blue-400{{end}}" id="cat-{{$q.ID}}">
+                            {{$q.Category}}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <!-- Edit Button -->
+                        <button onclick="toggleEdit({{$q.ID}})" class="p-2 text-muted hover:text-accent transition-colors" title="Edit">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
+                        <!-- Delete Button -->
+                        <form method="POST" action="" onsubmit="return confirm('Hapus pertanyaan ini?')">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="question_id" value="{{$q.ID}}">
+                            <button type="submit" class="p-2 text-muted hover:text-red-400 transition-colors" title="Hapus">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Edit Mode (Hidden by default) -->
+                <div id="edit-{{$q.ID}}" class="hidden p-4 bg-bg/50 border-b border-border">
+                    <form method="POST" action="" class="flex flex-col md:flex-row gap-3 items-center">
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="question_id" value="{{$q.ID}}">
+                        
+                        <div class="flex-1 w-full">
+                            <input type="text" name="question_text" value="{{$q.QuestionText}}" required
+                                class="input-field w-full px-4 py-2 bg-card border border-border rounded-lg outline-none text-sm">
+                        </div>
+                        
+                        <div class="w-full md:w-40">
+                            <select name="category" required class="input-field w-full px-4 py-2 bg-card border border-border rounded-lg outline-none text-sm">
+                                <option value="BM" {{if eq $q.Category "BM"}}selected{{end}}>BM</option>
+                                <option value="SRM" {{if eq $q.Category "SRM"}}selected{{end}}>SRM</option>
+                            </select>
+                        </div>
+
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <button type="submit" class="px-4 py-2 bg-accent text-bg rounded-lg font-medium text-sm w-full md:w-auto">Simpan</button>
+                            <button type="button" onclick="toggleEdit({{$q.ID}})" class="px-4 py-2 border border-border rounded-lg text-muted hover:text-fg text-sm w-full md:w-auto">Batal</button>
+                        </div>
+                    </form>
+                </div>
+
+                {{end}}
+            </div>
+            {{else}}
+            <div class="p-12 text-center text-muted">
+                <p>Belum ada pertanyaan. Tambahkan pertanyaan pertama Anda di atas.</p>
+            </div>
+            {{end}}
+        </div>
+    </main>
+
+    <script>
+        function toggleEdit(id) {
+            const viewDiv = document.getElementById('view-' + id);
+            const editDiv = document.getElementById('edit-' + id);
+            
+            if (viewDiv.classList.contains('hidden')) {
+                // Switch to View
+                viewDiv.classList.remove('hidden');
+                editDiv.classList.add('hidden');
+            } else {
+                // Switch to Edit
+                viewDiv.classList.add('hidden');
+                editDiv.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Questionnaire.Title}} - BRC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#0a0a0f',
+                        fg: '#e8e8ed',
+                        muted: '#6b7280',
+                        accent: '#00d4aa',
+                        card: '#14141f',
+                        border: '#2a2a3a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Space Grotesk', sans-serif; }
+        body { background: #0a0a0f; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.3);
+        }
+        
+        .copy-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(0, 212, 170, 0.1);
+        }
+        
+        .question-row {
+            transition: all 0.2s ease;
+        }
+        
+        .question-row:hover {
+            background: rgba(0, 212, 170, 0.05);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #00d4aa, #00a88a);
+            transition: width 0.5s ease;
+        }
+        
+        .tab-active {
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+        
+        .session-card {
+            transition: all 0.3s ease;
+        }
+        
+        .session-card:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .modal-overlay {
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(8px);
+        }
+        
+        .modal-content {
+            animation: modalIn 0.3s ease;
+        }
+        
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+    </style>
+</head>
+<body class="text-fg min-h-screen">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-bg/80 backdrop-blur-xl border-b border-border">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/dashboard" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-emerald-600 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <span class="font-display font-semibold text-xl">BRC</span>
+                </a>
+                <a href="/dashboard" class="text-muted hover:text-fg transition-colors">
+                    ← Kembali ke Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        <!-- Header -->
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-10 fade-in">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-10 fade-in">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <h1 class="font-display text-3xl font-bold">{{.Questionnaire.Title}}</h1>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium 
+                                {{if eq .Questionnaire.Status "active"}}bg-accent/10 text-accent
+                                {{else if eq .Questionnaire.Status "completed"}}bg-green-500/10 text-green-400
+                                {{else}}bg-yellow-500/10 text-yellow-400{{end}}">
+                                {{.Questionnaire.Status}}
+                            </span>
+                        </div>
+                        <p class="text-muted max-w-2xl">{{.Questionnaire.Description}}</p>
+                        
+                        {{if eq .Questionnaire.Status "draft"}}
+                        <div class="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-yellow-400 text-sm">
+                            <strong>Mode Draft:</strong> Form belum bisa diisi client. Silakan edit pertanyaan lalu Publish.
+                        </div>
+                        {{end}}
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        {{if eq .Questionnaire.Status "draft"}}
+                            <!-- Tombol untuk Status DRAFT -->
+                            <a href="/questionnaire/{{.Questionnaire.ID}}/manage" class="btn-primary px-6 py-3 rounded-xl font-semibold text-bg inline-flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Edit Pertanyaan
+                            </a>
+                            
+                            <form method="POST" action="/questionnaire/{{.Questionnaire.ID}}">
+                                <input type="hidden" name="action" value="publish">
+                                <button type="submit" class="px-6 py-3 border border-border rounded-xl font-medium hover:border-accent transition-colors w-full sm:w-auto">
+                                    Publish Sekarang
+                                </button>
+                            </form>
+                        {{else}}
+                            <!-- Tombol untuk Status ACTIVE -->
+                            <a href="/questionnaire/{{.Questionnaire.ID}}/manage" class="px-4 py-2 border border-border rounded-xl text-sm hover:border-accent transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Edit Questions
+                            </a>
+
+                            <form method="POST" action="/questionnaire/{{.Questionnaire.ID}}" onsubmit="return confirm('Unpublish akan menyembunyikan form dari client?')">
+                                <input type="hidden" name="action" value="unpublish">
+                                <button type="submit" class="px-4 py-2 border border-red-500/30 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-colors">
+                                    Unpublish
+                                </button>
+                            </form>
+
+                            <button onclick="copyShareLink()" class="btn-primary px-6 py-3 rounded-xl font-semibold text-bg inline-flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                                </svg>
+                                <span id="copyBtnText">Copy Link</span>
+                            </button>
+                        {{end}}
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Share Link Card -->
+        <div class="bg-card rounded-2xl border border-border p-6 mb-8 fade-in stagger-1">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-semibold">Link Share Questionnaire</h2>
+                <span class="text-sm text-muted">Kirim link ini ke client</span>
+            </div>
+            <div class="flex gap-3">
+                <input type="text" readonly value="{{.ShareURL}}" id="shareUrlInput"
+                    class="flex-1 px-4 py-3 bg-bg border border-border rounded-xl text-fg font-mono text-sm">
+                <button onclick="copyShareLink()" class="copy-btn px-4 py-3 border border-border rounded-xl hover:border-accent">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 fade-in stagger-2">
+            <div class="bg-card rounded-xl border border-border p-5">
+                <div class="text-2xl font-bold text-accent">{{.TotalQuestions}}</div>
+                <div class="text-sm text-muted">Total Pertanyaan</div>
+            </div>
+            <div class="bg-card rounded-xl border border-border p-5">
+                <div class="text-2xl font-bold text-blue-400">{{len .Sessions}}</div>
+                <div class="text-sm text-muted">Total Respon</div>
+            </div>
+            <div class="bg-card rounded-xl border border-border p-5">
+                <div class="text-2xl font-bold text-green-400">{{countCompleted .Sessions}}</div>
+                <div class="text-sm text-muted">Selesai</div>
+            </div>
+            <div class="bg-card rounded-xl border border-border p-5">
+                <div class="text-2xl font-bold text-yellow-400">{{countInProgress .Sessions}}</div>
+                <div class="text-sm text-muted">Dalam Progress</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-border mb-8 fade-in stagger-3">
+            <div class="flex gap-8">
+                <button onclick="switchTab('questions')" id="tab-questions" class="tab-btn pb-4 border-b-2 border-accent text-accent font-medium">
+                    Daftar Pertanyaan
+                </button>
+                <button onclick="switchTab('responses')" id="tab-responses" class="tab-btn pb-4 border-b-2 border-transparent text-muted hover:text-fg font-medium">
+                    Respon Client
+                </button>
+            </div>
+        </div>
+
+        <!-- Questions Tab -->
+        <div id="content-questions" class="tab-content">
+            <div class="bg-card rounded-2xl border border-border overflow-hidden">
+                <div class="p-4 border-b border-border bg-bg/50">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-muted">Menampilkan {{len .Questions}} pertanyaan</span>
+                        <div class="flex gap-2">
+                            <span class="px-2 py-1 rounded text-xs bg-accent/10 text-accent">BM = Business Modeling</span>
+                            <span class="px-2 py-1 rounded text-xs bg-blue-500/10 text-blue-400">SRM = System Requirement</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="divide-y divide-border">
+                    {{range $index, $q := .Questions}}
+                    <div class="question-row p-4 flex items-start gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-bg flex items-center justify-center font-mono text-sm text-muted">
+                            {{add $index 1}}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="mb-2">{{$q.QuestionText}}</p>
+                            <div class="flex items-center gap-4 text-sm">
+                                <span class="{{if eq $q.Category "BM"}}text-accent{{else}}text-blue-400{{end}}">{{$q.Category}}</span>
+                                <span class="text-muted">{{$q.AnsweredCount}} terjawab</span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="w-16 h-2 bg-bg rounded-full overflow-hidden">
+                                <div class="progress-bar h-full" style="width: {{calculateProgress $q.AnsweredCount (len $.Sessions)}}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Responses Tab -->
+        <div id="content-responses" class="tab-content hidden">
+            {{if .Sessions}}
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {{range .Sessions}}
+                <div class="session-card bg-card rounded-2xl border border-border p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="font-semibold">{{.ClientName}}</h3>
+                            <p class="text-sm text-muted">{{.ClientEmail}}</p>
+                        </div>
+                        <span class="px-2 py-1 rounded text-xs {{if eq .Status "completed"}}bg-green-500/10 text-green-400{{else if eq .Status "in_progress"}}bg-yellow-500/10 text-yellow-400{{else}}bg-muted/10 text-muted{{end}}">
+                            {{.Status}}
+                        </span>
+                    </div>
+                    
+                    {{if .ClientCompany}}
+                    <p class="text-sm text-muted mb-4">{{.ClientCompany}}</p>
+                    {{end}}
+                    
+                    <div class="flex items-center justify-between pt-4 border-t border-border">
+                        <span class="text-xs text-muted">{{formatDate .CreatedAt}}</span>
+                        {{if eq .Status "completed"}}
+                        <a href="/document/view/{{.ID}}" class="text-accent text-sm hover:underline">
+                            Lihat Dokumen →
+                        </a>
+                        {{else}}
+                        <span class="text-muted text-sm">Menunggu selesai</span>
+                        {{end}}
+                    </div>
+                </div>
+                {{end}}
+            </div>
+            {{else}}
+            <div class="bg-card rounded-2xl border border-border border-dashed p-12 text-center">
+                <div class="w-16 h-16 rounded-full bg-muted/10 flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-8 h-8 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="font-display text-xl font-semibold mb-2">Belum ada respon</h3>
+                <p class="text-muted">Share link questionnaire ke client untuk mulai mengumpulkan jawaban</p>
+            </div>
+            {{end}}
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-card border border-accent rounded-xl px-6 py-4 shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="toastMessage">Link berhasil di-copy!</span>
+        </div>
+    </div>
+
+    <script>
+        function copyShareLink() {
+            const input = document.getElementById('shareUrlInput');
+            const text = input.value;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Link berhasil di-copy!');
+                const btnText = document.getElementById('copyBtnText');
+                btnText.textContent = 'Copied!';
+                setTimeout(() => {
+                    btnText.textContent = 'Copy Link';
+                }, 2000);
+            }).catch(err => {
+                // Fallback
+                input.select();
+                document.execCommand('copy');
+                showToast('Link berhasil di-copy!');
+            });
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+        
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-accent', 'text-accent');
+                btn.classList.add('border-transparent', 'text-muted');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tab);
+            activeTab.classList.remove('border-transparent', 'text-muted');
+            activeTab.classList.add('border-accent', 'text-accent');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            document.getElementById('content-' + tab).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

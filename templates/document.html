@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumen - {{.Questionnaire.Title}}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#0a0a0f',
+                        fg: '#e8e8ed',
+                        muted: '#6b7280',
+                        accent: '#00d4aa',
+                        card: '#14141f',
+                        border: '#2a2a3a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Space Grotesk', sans-serif; }
+        body { background: #0a0a0f; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.3);
+        }
+        
+        .tab-active {
+            background: rgba(0, 212, 170, 0.1);
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+        
+        .document-content {
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        
+        .document-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #2a2a3a;
+        }
+        
+        .document-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #00d4aa;
+        }
+        
+        .document-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .document-content p {
+            margin-bottom: 1rem;
+        }
+        
+        .document-content ul, .document-content ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .document-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .document-content ul li {
+            list-style-type: disc;
+        }
+        
+        .document-content ol li {
+            list-style-type: decimal;
+        }
+        
+        .document-content code {
+            background: rgba(0, 212, 170, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+        }
+        
+        .document-content pre {
+            background: #0f0f18;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .document-content pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .document-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        
+        .document-content th, .document-content td {
+            border: 1px solid #2a2a3a;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        .document-content th {
+            background: #14141f;
+        }
+        
+        .document-content blockquote {
+            border-left: 4px solid #00d4aa;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #6b7280;
+        }
+        
+        .sidebar-item {
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(0, 212, 170, 0.05);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(0, 212, 170, 0.1);
+            border-left-color: #00d4aa;
+        }
+    </style>
+</head>
+<body class="text-fg min-h-screen">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-bg/90 backdrop-blur-xl border-b border-border">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <a href="/dashboard" class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-emerald-600 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <span class="font-display font-semibold text-xl">BRC</span>
+                    </a>
+                    <span class="text-muted">/</span>
+                    <span class="text-muted">{{.Questionnaire.Title}}</span>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <a href="/document/export/{{.Session.ID}}/bm" class="px-4 py-2 border border-border rounded-lg text-sm hover:border-accent transition-colors">
+                        Export BM
+                    </a>
+                    <a href="/document/export/{{.Session.ID}}/srm" class="px-4 py-2 border border-border rounded-lg text-sm hover:border-accent transition-colors">
+                        Export SRM
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center gap-3 mb-2">
+                <h1 class="font-display text-2xl font-bold">Generated Documents</h1>
+                <span class="px-3 py-1 rounded-full text-xs bg-green-500/10 text-green-400">AI Generated</span>
+            </div>
+            <p class="text-muted">Client: {{.Session.ClientName}} | {{.Session.ClientEmail}}</p>
+        </div>
+
+        <!-- Client Info -->
+        <div class="bg-card rounded-2xl border border-border p-6 mb-8">
+            <h2 class="font-semibold mb-4">Informasi Client</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div>
+                    <span class="text-sm text-muted">Nama</span>
+                    <p class="font-medium">{{.Session.ClientName}}</p>
+                </div>
+                <div>
+                    <span class="text-sm text-muted">Email</span>
+                    <p class="font-medium">{{.Session.ClientEmail}}</p>
+                </div>
+                <div>
+                    <span class="text-sm text-muted">Perusahaan</span>
+                    <p class="font-medium">{{if .Session.ClientCompany}}{{.Session.ClientCompany}}{{else}}-{{end}}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex gap-4 mb-8">
+            <button onclick="switchTab('bm')" id="tab-bm" class="tab-btn px-6 py-3 border border-accent rounded-xl font-medium tab-active">
+                Business Modeling
+            </button>
+            <button onclick="switchTab('srm')" id="tab-srm" class="tab-btn px-6 py-3 border border-border rounded-xl font-medium">
+                System Requirement Modeling
+            </button>
+        </div>
+
+        <!-- BM Content -->
+        <div id="content-bm" class="tab-content">
+            <div class="bg-card rounded-2xl border border-border p-8">
+                <div id="bm-content" class="document-content">
+                    Loading...
+                </div>
+            </div>
+        </div>
+
+        <!-- SRM Content -->
+        <div id="content-srm" class="tab-content hidden">
+            <div class="bg-card rounded-2xl border border-border p-8">
+                <div id="srm-content" class="document-content">
+                    Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var bmContent = "";
+        var srmContent = "";
+        {{if .Document}}
+            {{if .Document.BMContent}}bmContent = {{.Document.BMContent | js}};{{end}}
+            {{if .Document.SRMContent}}srmContent = {{.Document.SRMContent | js}};{{end}}
+        {{end}}
+
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    return hljs.highlight(code, { language: lang }).value;
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true,
+            gfm: true
+        });
+        
+        var bmHtml = bmContent ? marked.parse(bmContent) : '<p class="text-muted">Konten belum tersedia.</p>';
+        var srmHtml = srmContent ? marked.parse(srmContent) : '<p class="text-muted">Konten belum tersedia.</p>';
+
+        document.getElementById('bm-content').innerHTML = bmHtml;
+        document.getElementById('srm-content').innerHTML = srmHtml;
+        
+        // Tab switching
+        function switchTab(tab) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('border-border');
+            });
+            
+            const activeTab = document.getElementById('tab-' + tab);
+            activeTab.classList.add('tab-active');
+            activeTab.classList.remove('border-border');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            document.getElementById('content-' + tab).classList.remove('hidden');
+        }
+        
+        // Check URL for initial tab
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialTab = urlParams.get('tab') || 'bm';
+        if (initialTab === 'srm') {
+            switchTab('srm');
+        }
+    </script>
+</body>
+</html>

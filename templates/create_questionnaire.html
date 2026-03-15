@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat Questionnaire - BRC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#0a0a0f',
+                        fg: '#e8e8ed',
+                        muted: '#6b7280',
+                        accent: '#00d4aa',
+                        card: '#14141f',
+                        border: '#2a2a3a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Space Grotesk', sans-serif; }
+        body { background: #0a0a0f; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .input-field:focus {
+            border-color: #00d4aa;
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+        }
+        
+        .loading-spinner {
+            border: 3px solid rgba(0, 212, 170, 0.3);
+            border-top-color: #00d4aa;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-fg min-h-screen">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-bg/80 backdrop-blur-xl border-b border-border">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/dashboard" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-emerald-600 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <span class="font-display font-semibold text-xl">BRC</span>
+                </a>
+                <a href="/dashboard" class="text-muted hover:text-fg transition-colors">
+                    ← Kembali ke Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-6 py-10">
+        <div class="mb-10">
+            <h1 class="font-display text-3xl font-bold mb-2">Buat Questionnaire Baru</h1>
+            <p class="text-muted">Pilih mode pembuatan: Otomatis oleh AI atau Manual</p>
+        </div>
+
+        {{if .Error}}
+        <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+            <p class="text-red-400 text-sm">{{.Error}}</p>
+        </div>
+        {{end}}
+
+        <form id="createForm" method="POST" action="/questionnaire/create">
+            <div class="bg-card rounded-2xl border border-border p-8 space-y-6">
+                
+                <!-- 1. Title -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">Judul Questionnaire <span class="text-red-400">*</span></label>
+                    <input type="text" name="title" required
+                        class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl outline-none text-fg placeholder-muted"
+                        placeholder="Contoh: Sistem Inventaris Toko Retail"
+                        value="{{if .Form}}{{.Form.Get "title"}}{{end}}">
+                </div>
+                
+                <!-- 2. Short Description -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">Deskripsi Singkat</label>
+                    <input type="text" name="description"
+                        class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl outline-none text-fg placeholder-muted"
+                        placeholder="Deskripsi singkat tentang questionnaire ini"
+                        value="{{if .Form}}{{.Form.Get "description"}}{{end}}">
+                </div>
+
+                <!-- 3. Mode Selection -->
+                <div>
+                    <label class="block text-sm font-medium mb-3">Mode Pembuatan <span class="text-red-400">*</span></label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="mode" value="ai" class="hidden peer" checked>
+                            <div class="p-4 border border-border rounded-xl peer-checked:border-accent peer-checked:bg-accent/5 transition-colors h-full">
+                                <div class="font-semibold flex items-center gap-2 mb-1">
+                                    <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                    AI Generator
+                                </div>
+                                <p class="text-muted text-xs">Generate 100 pertanyaan otomatis</p>
+                            </div>
+                        </label>
+                        
+                        <label class="cursor-pointer">
+                            <input type="radio" name="mode" value="manual" class="hidden peer">
+                            <div class="p-4 border border-border rounded-xl peer-checked:border-accent peer-checked:bg-accent/5 transition-colors h-full">
+                                <div class="font-semibold flex items-center gap-2 mb-1">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    Manual
+                                </div>
+                                <p class="text-muted text-xs">Buat pertanyaan sendiri</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 4. Project Description (AI Only) -->
+                <div id="aiSection" class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-sm font-medium">
+                            Deskripsi Proyek <span class="text-accent">(Diperlukan untuk AI)</span>
+                        </label>
+                        <button type="button" id="previewBtn" onclick="generatePreview()"
+                            class="text-xs px-3 py-1 border border-border rounded-lg hover:border-accent transition-colors flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            <span id="previewBtnText">Preview AI</span>
+                        </button>
+                    </div>
+                    <textarea name="project_desc" id="projectDesc" rows="8"
+                        class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl outline-none text-fg placeholder-muted resize-none"
+                        placeholder="Jelaskan secara detail tentang proyek yang akan dibangun. Contoh: 
+
+Sistem inventaris untuk toko retail dengan multiple branch. 
+Fitur utama meliputi:
+- Manajemen stok barang
+- Tracking penjualan
+- Laporan keuangan
+
+Target pengguna: Staff gudang, kasir, manager.">{{if .Form}}{{.Form.Get "project_desc"}}{{end}}</textarea>
+                    <p class="text-muted text-xs">Semakin detail deskripsi, semakin relevan pertanyaan yang dihasilkan AI</p>
+                </div>
+
+                <!-- AI Preview Section (Hidden by default) -->
+                <div id="aiPreview" class="hidden">
+                    <div class="border-t border-border pt-6 mt-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-sm">Preview Pertanyaan AI</h3>
+                            <span id="questionCount" class="text-sm text-muted">0 pertanyaan</span>
+                        </div>
+                        <div id="questionsList" class="space-y-2 max-h-60 overflow-y-auto pr-2 bg-bg/30 p-4 rounded-lg border border-border">
+                            <!-- Questions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <a href="/dashboard" class="px-6 py-3 border border-border rounded-xl font-medium text-center hover:border-accent transition-colors">
+                    Batal
+                </a>
+                <button type="submit" id="submitBtn"
+                    class="btn-primary px-8 py-3 rounded-xl font-semibold text-bg flex items-center justify-center gap-2 flex-1">
+                    <span id="submitBtnText">Buat Questionnaire</span>
+                    <div id="submitSpinner" class="loading-spinner hidden"></div>
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        let isGenerating = false;
+
+        // Toggle AI Section Visibility based on Mode
+        const modeRadios = document.querySelectorAll('input[name="mode"]');
+        const aiSection = document.getElementById('aiSection');
+        const previewBtn = document.getElementById('previewBtn');
+        const projectDescInput = document.getElementById('projectDesc');
+        
+        function toggleMode() {
+            const isAI = document.querySelector('input[name="mode"]:checked').value === 'ai';
+            
+            if (isAI) {
+                aiSection.classList.remove('hidden');
+                previewBtn.classList.remove('hidden');
+                projectDescInput.required = true;
+            } else {
+                aiSection.classList.add('hidden');
+                previewBtn.classList.add('hidden');
+                projectDescInput.required = false;
+                // Clear AI Preview
+                document.getElementById('aiPreview').classList.add('hidden');
+            }
+        }
+        
+        modeRadios.forEach(radio => radio.addEventListener('change', toggleMode));
+        
+        // Run on load
+        toggleMode();
+
+        // AI Preview Generator
+        async function generatePreview() {
+            if (isGenerating) return;
+            
+            const projectDesc = projectDescInput.value.trim();
+            if (!projectDesc) {
+                alert('Mohon isi deskripsi proyek terlebih dahulu');
+                return;
+            }
+            
+            if (projectDesc.length < 20) {
+                alert('Deskripsi proyek terlalu pendek. Minimal 20 karakter.');
+                return;
+            }
+            
+            isGenerating = true;
+            const previewBtnText = document.getElementById('previewBtnText');
+            previewBtnText.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch('/api/generate-questions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project_desc: projectDesc }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.questions) {
+                    displayQuestions(data.questions);
+                } else {
+                    alert('Gagal generate preview: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error koneksi: ' + error.message);
+            } finally {
+                isGenerating = false;
+                previewBtnText.textContent = 'Preview AI';
+            }
+        }
+        
+        function displayQuestions(questions) {
+            const container = document.getElementById('questionsList');
+            const previewSection = document.getElementById('aiPreview');
+            const countEl = document.getElementById('questionCount');
+            
+            container.innerHTML = '';
+            countEl.textContent = questions.length + ' pertanyaan';
+            
+            questions.slice(0, 10).forEach((q, index) => {
+                const div = document.createElement('div');
+                div.className = 'fade-in bg-card p-2 rounded text-sm';
+                div.style.animationDelay = (index * 0.05) + 's';
+                
+                const isBM = q.includes('[BM]');
+                const category = isBM ? 'BM' : 'SRM';
+                const categoryClass = isBM ? 'text-accent' : 'text-blue-400';
+                
+                // Clean text
+                let text = q.replace(/\[BM\]|\[SRM\]/g, '').trim();
+                text = text.replace(/^\d+\.\s*/, '');
+                
+                div.innerHTML = `
+                    <span class="${categoryClass} text-xs font-mono mr-1">[${category}]</span>
+                    <span class="text-muted">${index + 1}.</span>
+                    <span>${text}</span>
+                `;
+                container.appendChild(div);
+            });
+            
+            if (questions.length > 10) {
+                const moreDiv = document.createElement('div');
+                moreDiv.className = 'text-center text-muted text-xs py-2 border-t border-border mt-2';
+                moreDiv.textContent = `...dan ${questions.length - 10} pertanyaan lainnya`;
+                container.appendChild(moreDiv);
+            }
+            
+            previewSection.classList.remove('hidden');
+        }
+        
+        // Submit Button State
+        document.getElementById('createForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            
+            submitBtn.disabled = true;
+            submitBtnText.textContent = 'Memproses...';
+            submitSpinner.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>

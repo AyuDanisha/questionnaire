@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionnaire - {{.Questionnaire.Title}}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#0a0a0f',
+                        fg: '#e8e8ed',
+                        muted: '#6b7280',
+                        accent: '#00d4aa',
+                        card: '#14141f',
+                        border: '#2a2a3a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Space Grotesk', sans-serif; }
+        body { background: #0a0a0f; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.3);
+        }
+        
+        .btn-secondary {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #00d4aa;
+        }
+        
+        .input-field:focus {
+            border-color: #00d4aa;
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+        }
+        
+        .progress-track {
+            background: rgba(42, 42, 58, 0.5);
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #00d4aa, #00a88a);
+            transition: width 0.5s ease;
+        }
+        
+        .question-card {
+            animation: slideIn 0.4s ease forwards;
+            opacity: 0;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stagger-1 { animation-delay: 0.05s; }
+        .stagger-2 { animation-delay: 0.1s; }
+        .stagger-3 { animation-delay: 0.15s; }
+        .stagger-4 { animation-delay: 0.2s; }
+        .stagger-5 { animation-delay: 0.25s; }
+        .stagger-6 { animation-delay: 0.3s; }
+        .stagger-7 { animation-delay: 0.35s; }
+        .stagger-8 { animation-delay: 0.4s; }
+        .stagger-9 { animation-delay: 0.45s; }
+        .stagger-10 { animation-delay: 0.5s; }
+        
+        .autosave-indicator {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        .category-badge-bm {
+            background: rgba(0, 212, 170, 0.1);
+            color: #00d4aa;
+        }
+        
+        .category-badge-srm {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="text-fg min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-bg/90 backdrop-blur-xl border-b border-border">
+        <div class="max-w-4xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h1 class="font-display font-semibold">{{.Questionnaire.Title}}</h1>
+                    <p class="text-sm text-muted">{{.ClientSession.ClientName}} | {{.ClientSession.ClientEmail}}</p>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="autosave-indicator text-muted">Auto-save aktif</span>
+                    <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="flex items-center gap-4">
+                <div class="flex-1 progress-track h-2 rounded-full overflow-hidden">
+                    <div class="progress-fill h-full rounded-full" id="progressBar" style="width: 0%"></div>
+                </div>
+                <span class="text-sm font-mono text-muted" id="progressText">0%</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 py-10">
+        <!-- Page Info -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <span class="text-muted">Halaman</span>
+                <span class="font-display text-2xl font-bold ml-2">{{.Page}}/{{.TotalPages}}</span>
+            </div>
+            <div class="text-sm text-muted">
+                Pertanyaan {{.StartNumber}} - {{.EndNumber}} dari {{.TotalQuestions}}
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" action="" id="questionnaireForm">
+            <div class="space-y-6 mb-10">
+                {{range $index, $q := .Questions}}
+                <div class="question-card stagger-{{add $index 1}} bg-card rounded-2xl border border-border p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-bg flex items-center justify-center font-mono text-sm">
+                            {{add $.StartNumber $index}}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-3">
+                                <!-- <span class="px-2 py-1 rounded text-xs font-medium {{if eq $q.Category "BM"}} category-badge-bm{{else}}category-badge-srm{{end}}">
+                                    {{$q.Category}}
+                                </span> -->
+                            </div>
+                            <p class="mb-4">{{$q.QuestionText}}</p>
+                            <textarea name="answer_{{$q.ID}}" rows="3"
+                                class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl outline-none text-fg placeholder-muted resize-none"
+                                placeholder="Tuliskan jawaban Anda..."
+                                data-question-id="{{$q.ID}}">{{$q.Answer}}</textarea>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex flex-col sm:flex-row gap-4 sticky bottom-0 bg-bg/90 backdrop-blur-xl py-6 -mx-6 px-6 border-t border-border">
+                {{if gt .Page 1}}
+                <a href="?page={{sub .Page 1}}" class="btn-secondary px-6 py-3 border border-border rounded-xl font-medium text-center">
+                    ← Sebelumnya
+                </a>
+                {{end}}
+                
+                <button type="submit" name="action" value="save_later" class="btn-secondary px-6 py-3 border border-border rounded-xl font-medium">
+                    Simpan & Lanjutkan Nanti
+                </button>
+                
+                <button type="submit" name="action" value="save" class="btn-primary px-8 py-3 rounded-xl font-semibold text-bg flex-1">
+                    {{if eq .Page .TotalPages}}
+                    Submit Questionnaire
+                    {{else}}
+                    Selanjutnya →
+                    {{end}}
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        // Progress calculation
+        const totalPages = {{.TotalPages}};
+        const currentPage = {{.Page}};
+        const questionsOnPage = document.querySelectorAll('textarea[data-question-id]');
+        
+        function updateProgress() {
+            const progress = (currentPage / totalPages) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress) + '%';
+        }
+        
+        updateProgress();
+        
+        // Auto-save functionality
+        let saveTimeout;
+        const autoSaveIndicator = document.querySelector('.autosave-indicator');
+        
+        questionsOnPage.forEach(textarea => {
+            textarea.addEventListener('input', () => {
+                clearTimeout(saveTimeout);
+                autoSaveIndicator.textContent = 'Menyimpan...';
+                
+                saveTimeout = setTimeout(() => {
+                    autoSaveIndicator.textContent = 'Tersimpan';
+                    setTimeout(() => {
+                        autoSaveIndicator.textContent = 'Auto-save aktif';
+                    }, 1500);
+                }, 1000);
+            });
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + Enter to submit
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                document.getElementById('questionnaireForm').submit();
+            }
+        });
+        
+        // Warn before leaving with unsaved changes
+        let hasChanges = false;
+        questionsOnPage.forEach(textarea => {
+            textarea.addEventListener('input', () => {
+                hasChanges = true;
+            });
+        });
+        
+        window.addEventListener('beforeunload', (e) => {
+            if (hasChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+        
+        document.getElementById('questionnaireForm').addEventListener('submit', () => {
+            hasChanges = false;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tersimpan - BRC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#0a0a0f',
+                        fg: '#e8e8ed',
+                        muted: '#6b7280',
+                        accent: '#00d4aa',
+                        card: '#14141f',
+                        border: '#2a2a3a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Space Grotesk', sans-serif; }
+        body { background: #0a0a0f; }
+    </style>
+</head>
+<body class="text-fg min-h-screen flex items-center justify-center">
+    <div class="max-w-md mx-auto px-6 py-12 text-center">
+        <div class="w-20 h-20 mx-auto mb-8 rounded-full bg-accent/10 flex items-center justify-center">
+            <svg class="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+            </svg>
+        </div>
+        
+        <h1 class="font-display text-2xl font-bold mb-4">Progress Tersimpan</h1>
+        <p class="text-muted mb-8">{{.Message}}</p>
+        
+        <div class="bg-card rounded-xl border border-border p-4 mb-6">
+            <p class="text-sm text-muted">Anda dapat melanjutkan kapan saja dengan membuka link yang sama.</p>
+        </div>
+        
+        <a href="/" class="text-accent hover:underline">Kembali ke beranda</a>
+    </div>
+</body>
+</html>
