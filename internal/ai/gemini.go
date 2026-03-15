@@ -158,40 +158,38 @@ func ProxyGemini(input string, model string, fileBuffer []byte, systemInstructio
 	return gemRes.Candidates[0].Content.Parts[0].Text, nil
 }
 
-// ==========================================
-// ADAPTED FUNCTIONS FOR QUESTIONNAIRE APP
-// ==========================================
-
-// GenerateQuestions generates 100 questions using the new ProxyGemini function
 func GenerateQuestions(projectDesc string) ([]string, error) {
-	systemInstruction := "Anda adalah seorang Business Analyst dan System Analyst yang berpengalaman."
+	systemInstruction := "Anda adalah seorang Business Analyst dan System Analyst."
 
-	prompt := fmt.Sprintf(`Berdasarkan deskripsi proyek berikut, buatkan 100 pertanyaan yang akan digunakan untuk menyusun Business Modeling dan System Requirement Modeling.
+	prompt := fmt.Sprintf(`Berdasarkan deskripsi proyek berikut, buatkan 100 pertanyaan.
 
 Deskripsi Proyek:
 %s
 
 Instruksi:
-1. Buat tepat 100 pertanyaan
-2. Bagi menjadi 2 kategori:
-   - 50 pertanyaan untuk Business Modeling (BM) - meliputi: visi bisnis, tujuan, stakeholder, proses bisnis, aturan bisnis, value proposition, revenue stream, dll
-   - 50 pertanyaan untuk System Requirement Modeling (SRM) - meliputi: functional requirements, non-functional requirements, user requirements, system features, interfaces, security, performance, dll
-3. Setiap pertanyaan harus spesifik dan mudah dipahami oleh client non-teknis
-4. Format output: 
-   [BM] untuk pertanyaan Business Modeling
-   [SRM] untuk pertanyaan System Requirement Modeling
-   Contoh: [BM] Apa visi utama dari bisnis ini?
-5. Nomori setiap pertanyaan dari 1-100
+1. Buat tepat 100 pertanyaan.
+2. Kategori: [BM] (Business Modeling) atau [SRM] (System Requirement Modeling).
+3. Tentukan Tipe Jawaban (Type):
+   - TEXT_SHORT: Untuk jawaban singkat (nama, angka spesifik).
+   - TEXT_LONG: Untuk penjelasan deskriptif.
+   - RADIO: Untuk pilihan ganda (contoh: Ya/Tidak, Prioritas Tinggi/Sedah/Rendah). Sertakan opsi di dalam kurung () dipisah koma.
+   - CHECKBOX: Untuk pilihan ganda yang bisa lebih dari satu. Sertakan opsi di dalam kurung () dipisah koma.
+   - FILE: Untuk meminta upload dokumen/gambar.
+4. Format Output: [KATEGORI] [TYPE] Pertanyaan? (Opsi1, Opsi2)
 
-Mulai dari pertanyaan BM (1-50), lalu SRM (51-100).`, projectDesc)
+Contoh:
+[BM] [TEXT_LONG] Jelaskan visi bisnis Anda.
+[SRM] [RADIO] Apakah sistem harus mendukung multi-currency? (Ya, Tidak)
+[SRM] [CHECKBOX] Fitur mana yang prioritas? (Login, Dashboard, Laporan)
+[SRM] [FILE] Lampirkan logo perusahaan.
 
-	// Panggil ProxyGemini (fileBuffer = nil karena hanya teks)
+Mulai generate:`, projectDesc)
+
 	response, err := ProxyGemini(prompt, "gemini-2.0-flash", nil, systemInstruction)
 	if err != nil {
 		return nil, err
 	}
 
-	// Parse response into individual questions
 	lines := strings.Split(response, "\n")
 	var questions []string
 
@@ -200,20 +198,9 @@ Mulai dari pertanyaan BM (1-50), lalu SRM (51-100).`, projectDesc)
 		if line == "" {
 			continue
 		}
-		// Check if line contains a question marker
+		// Cek apakah ada format kategori
 		if strings.Contains(line, "[BM]") || strings.Contains(line, "[SRM]") {
 			questions = append(questions, line)
-		}
-	}
-
-	// Fallback parsing jika format tidak sesuai harapan
-	if len(questions) == 0 {
-		for _, line := range lines {
-			line = strings.TrimSpace(line)
-			if strings.HasPrefix(line, "1.") || strings.HasPrefix(line, "2.") ||
-				strings.Contains(line, "?") {
-				questions = append(questions, line)
-			}
 		}
 	}
 

@@ -93,6 +93,8 @@ func RunMigrations() {
 		`CREATE INDEX IF NOT EXISTS idx_questions_questionnaire ON questions(questionnaire_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_answers_session ON answers(session_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_client_sessions_token ON client_sessions(token)`,
+		`ALTER TABLE questions ADD COLUMN IF NOT EXISTS question_type VARCHAR(50) DEFAULT 'text_long'`,
+		`ALTER TABLE questions ADD COLUMN IF NOT EXISTS options TEXT`,
 	}
 
 	for _, query := range queries {
@@ -237,10 +239,9 @@ func CreateQuestions(questions []models.Question) error {
 
 	return tx.Commit()
 }
-
 func GetQuestionsByQuestionnaire(qID int) ([]models.Question, error) {
 	rows, err := DB.Query(
-		`SELECT id, questionnaire_id, question_text, category, order_num, created_at 
+		`SELECT id, questionnaire_id, question_text, category, order_num, created_at, question_type, options 
          FROM questions WHERE questionnaire_id = $1 ORDER BY order_num`,
 		qID,
 	)
@@ -252,16 +253,22 @@ func GetQuestionsByQuestionnaire(qID int) ([]models.Question, error) {
 	var questions []models.Question
 	for rows.Next() {
 		var q models.Question
-		err := rows.Scan(&q.ID, &q.QuestionnaireID, &q.QuestionText, &q.Category, &q.OrderNum, &q.CreatedAt)
+		// Handle NULL untuk options
+		var opts sql.NullString
+
+		err := rows.Scan(&q.ID, &q.QuestionnaireID, &q.QuestionText, &q.Category, &q.OrderNum, &q.CreatedAt, &q.QuestionType, &opts)
 		if err != nil {
 			return nil, err
+		}
+
+		if opts.Valid {
+			q.Options = opts.String
 		}
 		questions = append(questions, q)
 	}
 	return questions, nil
 }
 
-// Client Session operations
 func CreateClientSession(qID int, name, email, company, token string) (int, error) {
 	var id int
 	err := DB.QueryRow(
@@ -473,25 +480,25 @@ func GetAnsweredCountForQuestion(qID int) (int, error) {
 func CreateSingleQuestion(q models.Question) (int, error) {
 	var id int
 	err := DB.QueryRow(
-		`INSERT INTO questions (questionnaire_id, question_text, category, order_num) 
+		`INSERT INTO questions (questionnaire_id, question_text, category, order_num, question_type, options) 
          VALUES ($1, $2, $3, 
-                 (SELECT COALESCE(MAX(order_num), 0) + 1 FROM questions WHERE questionnaire_id = $1)
+                 (SELECT COALESCE(MAX(order_num), 0) + 1 FROM questions WHERE questionnaire_id = $1),
+                 $4, $5
          ) 
          RETURNING id`,
-		q.QuestionnaireID, q.QuestionText, q.Category,
+		q.QuestionnaireID, q.QuestionText, q.Category, q.QuestionType, q.Options,
 	).Scan(&id)
 	return id, err
 }
-
 func DeleteQuestion(qID int) error {
 	_, err := DB.Exec("DELETE FROM questions WHERE id = $1", qID)
 	return err
 }
 
-func UpdateQuestion(qID int, text string, category string) error {
+func UpdateQuestion(qID int, text string, category string, qType string, options string) error {
 	_, err := DB.Exec(
-		"UPDATE questions SET question_text = $1, category = $2 WHERE id = $3",
-		text, category, qID,
+		"UPDATE questions SET question_text = $1, category = $2, question_type = $3, options = $4 WHERE id = $5",
+		text, category, qType, options, qID,
 	)
 	return err
 }

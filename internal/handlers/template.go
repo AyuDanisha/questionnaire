@@ -75,6 +75,15 @@ var templateFuncs = template.FuncMap{
 		}
 		return (answered * 100) / total
 	},
+	"split": func(s, sep string) []string {
+		if s == "" {
+			return []string{}
+		}
+		return strings.Split(s, sep)
+	},
+	"contains": func(s, substr string) bool {
+		return strings.Contains(s, substr)
+	},
 }
 
 func InitTemplates() {

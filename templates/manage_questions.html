@@ -22,7 +22,7 @@
         * { font-family: 'Space Grotesk', sans-serif; } body { background: #0a0a0f; }
         .btn-primary { background: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%); }
         .btn-primary:hover { box-shadow: 0 10px 40px rgba(0, 212, 170, 0.3); }
-        .input-field:focus { border-color: #00d4aa; box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1); }
+        .input-field:focus { border-color: #00d4aa; box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1); outline: none; }
         .question-row:hover { background: rgba(0, 212, 170, 0.03); }
     </style>
 </head>
@@ -62,7 +62,7 @@
                     </button>
                 </form>
                 {{end}}
-                <a href="/questionnaire/{{.Questionnaire.ID}}" class="px-4 py-2 border border-border rounded-lg text-sm hover:border-accent">
+                <a href="/questionnaire/{{.Questionnaire.ID}}" class="px-4 py-2 border border-border rounded-lg text-sm hover:border-accent transition-colors">
                     Lihat Detail
                 </a>
             </div>
@@ -74,27 +74,47 @@
             <form method="POST" action="" class="space-y-4">
                 <input type="hidden" name="action" value="add">
                 
-                <div class="grid md:grid-cols-12 gap-4 items-end">
-                    <div class="md:col-span-7">
-                        <label class="block text-sm font-medium mb-2">Pertanyaan</label>
-                        <input type="text" name="question_text" required
-                            class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl outline-none"
-                            placeholder="Tulis pertanyaan...">
-                    </div>
-                    
-                    <div class="md:col-span-3">
+                <!-- Row 1: Pertanyaan -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">Pertanyaan</label>
+                    <input type="text" name="question_text" required
+                        class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl"
+                        placeholder="Tulis pertanyaan...">
+                </div>
+
+                <!-- Row 2: Kategori, Tipe, dan Opsi -->
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div>
                         <label class="block text-sm font-medium mb-2">Kategori</label>
-                        <select name="category" required class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl outline-none">
+                        <select name="category" required class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl">
                             <option value="BM">Business Modeling</option>
                             <option value="SRM">System Requirement</option>
                         </select>
                     </div>
                     
-                    <div class="md:col-span-2">
-                        <button type="submit" class="btn-primary w-full py-3 rounded-xl font-semibold text-bg">
-                            + Tambah
-                        </button>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Tipe Jawaban</label>
+                        <select name="question_type" id="addType" onchange="toggleOptions(this, 'addOptionsDiv')" class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl">
+                            <option value="text_long">Teks Panjang</option>
+                            <option value="text_short">Teks Singkat</option>
+                            <option value="radio">Pilihan Ganda (Radio)</option>
+                            <option value="checkbox">Centang (Checkbox)</option>
+                            <option value="file">Upload File</option>
+                        </select>
                     </div>
+                    
+                    <div id="addOptionsDiv" class="hidden">
+                        <label class="block text-sm font-medium mb-2">Opsi (Pisah Enter)</label>
+                        <textarea name="options" rows="2" 
+                            class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl resize-none"
+                            placeholder="Ya&#10;Tidak&#10;Mungkin"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="btn-primary px-6 py-2 rounded-xl font-semibold text-bg text-sm">
+                        + Tambah Pertanyaan
+                    </button>
                 </div>
             </form>
         </div>
@@ -112,16 +132,28 @@
                 
                 <!-- Normal View Mode -->
                 <div id="view-{{$q.ID}}" class="question-row p-4 flex items-center gap-4">
-                    <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-bg flex items-center justify-center font-mono text-sm text-muted">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-bg flex items-center justify-center font-mono text-sm text-muted">
                         {{add $index 1}}
                     </div>
                     <div class="flex-1">
-                        <p class="mb-1" id="text-{{$q.ID}}">{{$q.QuestionText}}</p>
-                        <span class="text-xs px-2 py-1 rounded {{if eq $q.Category "BM"}}bg-accent/10 text-accent{{else}}bg-blue-500/10 text-blue-400{{end}}" id="cat-{{$q.ID}}">
-                            {{$q.Category}}
-                        </span>
+                        <p class="mb-2" id="text-{{$q.ID}}">{{$q.QuestionText}}</p>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span class="text-xs px-2 py-1 rounded {{if eq $q.Category "BM"}}bg-accent/10 text-accent{{else}}bg-blue-500/10 text-blue-400{{end}}">
+                                {{$q.Category}}
+                            </span>
+                            <span class="text-xs px-2 py-1 rounded bg-purple-500/10 text-purple-400">
+                                {{if eq $q.QuestionType "text_long"}}Teks Panjang{{end}}
+                                {{if eq $q.QuestionType "text_short"}}Teks Singkat{{end}}
+                                {{if eq $q.QuestionType "radio"}}Pilihan Ganda{{end}}
+                                {{if eq $q.QuestionType "checkbox"}}Centang{{end}}
+                                {{if eq $q.QuestionType "file"}}File{{end}}
+                            </span>
+                            {{if $q.Options}}
+                            <span class="text-xs text-muted italic">({{$q.Options}})</span>
+                            {{end}}
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1">
                         <!-- Edit Button -->
                         <button onclick="toggleEdit({{$q.ID}})" class="p-2 text-muted hover:text-accent transition-colors" title="Edit">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,26 +174,47 @@
                 </div>
 
                 <!-- Edit Mode (Hidden by default) -->
-                <div id="edit-{{$q.ID}}" class="hidden p-4 bg-bg/50 border-b border-border">
-                    <form method="POST" action="" class="flex flex-col md:flex-row gap-3 items-center">
+                <div id="edit-{{$q.ID}}" class="hidden p-6 bg-bg/70 border-b border-border">
+                    <form method="POST" action="" class="space-y-4">
                         <input type="hidden" name="action" value="update">
                         <input type="hidden" name="question_id" value="{{$q.ID}}">
                         
-                        <div class="flex-1 w-full">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Pertanyaan</label>
                             <input type="text" name="question_text" value="{{$q.QuestionText}}" required
-                                class="input-field w-full px-4 py-2 bg-card border border-border rounded-lg outline-none text-sm">
+                                class="input-field w-full px-4 py-2 bg-card border border-border rounded-lg text-sm">
                         </div>
                         
-                        <div class="w-full md:w-40">
-                            <select name="category" required class="input-field w-full px-4 py-2 bg-card border border-border rounded-lg outline-none text-sm">
-                                <option value="BM" {{if eq $q.Category "BM"}}selected{{end}}>BM</option>
-                                <option value="SRM" {{if eq $q.Category "SRM"}}selected{{end}}>SRM</option>
-                            </select>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Kategori</label>
+                                <select name="category" required class="input-field w-full px-4 py-2 bg-card border border-border rounded-lg text-sm">
+                                    <option value="BM" {{if eq $q.Category "BM"}}selected{{end}}>BM</option>
+                                    <option value="SRM" {{if eq $q.Category "SRM"}}selected{{end}}>SRM</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Tipe</label>
+                                <select name="question_type" onchange="toggleOptions(this, 'editOptions-{{$q.ID}}')" class="input-field w-full px-4 py-2 bg-card border border-border rounded-lg text-sm">
+                                    <option value="text_long" {{if eq $q.QuestionType "text_long"}}selected{{end}}>Teks Panjang</option>
+                                    <option value="text_short" {{if eq $q.QuestionType "text_short"}}selected{{end}}>Teks Singkat</option>
+                                    <option value="radio" {{if eq $q.QuestionType "radio"}}selected{{end}}>Pilihan Ganda</option>
+                                    <option value="checkbox" {{if eq $q.QuestionType "checkbox"}}selected{{end}}>Centang</option>
+                                    <option value="file" {{if eq $q.QuestionType "file"}}selected{{end}}>Upload File</option>
+                                </select>
+                            </div>
+                            
+                            <div id="editOptions-{{$q.ID}}" class="{{if or (eq $q.QuestionType "radio") (eq $q.QuestionType "checkbox")}}block{{else}}hidden{{end}}">
+                                <label class="block text-sm font-medium mb-2">Opsi</label>
+                                <textarea name="options" rows="2" 
+                                    class="input-field w-full px-4 py-2 bg-card border border-border rounded-lg text-sm resize-none">{{$q.Options}}</textarea>
+                            </div>
                         </div>
 
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <button type="submit" class="px-4 py-2 bg-accent text-bg rounded-lg font-medium text-sm w-full md:w-auto">Simpan</button>
-                            <button type="button" onclick="toggleEdit({{$q.ID}})" class="px-4 py-2 border border-border rounded-lg text-muted hover:text-fg text-sm w-full md:w-auto">Batal</button>
+                        <div class="flex gap-2 justify-end pt-2">
+                            <button type="submit" class="btn-primary px-6 py-2 rounded-lg font-medium text-sm text-bg">Simpan Perubahan</button>
+                            <button type="button" onclick="toggleEdit({{$q.ID}})" class="px-6 py-2 border border-border rounded-lg text-muted hover:text-fg text-sm">Batal</button>
                         </div>
                     </form>
                 </div>
@@ -182,13 +235,21 @@
             const editDiv = document.getElementById('edit-' + id);
             
             if (viewDiv.classList.contains('hidden')) {
-                // Switch to View
                 viewDiv.classList.remove('hidden');
                 editDiv.classList.add('hidden');
             } else {
-                // Switch to Edit
                 viewDiv.classList.add('hidden');
                 editDiv.classList.remove('hidden');
+            }
+        }
+
+        function toggleOptions(selectEl, optionsDivId) {
+            var optionsDiv = document.getElementById(optionsDivId);
+            var type = selectEl.value;
+            if(type === 'radio' || type === 'checkbox') {
+                optionsDiv.classList.remove('hidden');
+            } else {
+                optionsDiv.classList.add('hidden');
             }
         }
     </script>

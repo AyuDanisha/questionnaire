@@ -28,6 +28,8 @@ type Question struct {
 	Category        string    `json:"category"` // BM atau SRM
 	OrderNum        int       `json:"order_num"`
 	CreatedAt       time.Time `json:"created_at"`
+	QuestionType    string    `json:"question_type"` // text_short, text_long, radio, checkbox, file
+	Options         string    `json:"options"`       // radio/checkbox
 }
 
 type ClientSession struct {

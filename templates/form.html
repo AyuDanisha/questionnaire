@@ -158,10 +158,47 @@
                                 </span> -->
                             </div>
                             <p class="mb-4">{{$q.QuestionText}}</p>
-                            <textarea name="answer_{{$q.ID}}" rows="3"
-                                class="input-field w-full px-4 py-3 bg-bg border border-border rounded-xl outline-none text-fg placeholder-muted resize-none"
-                                placeholder="Tuliskan jawaban Anda..."
-                                data-question-id="{{$q.ID}}">{{$q.Answer}}</textarea>
+                            <div class="mt-2">
+                                {{if eq $q.QuestionType "text_short"}}
+                                    <input type="text" name="answer_{{$q.ID}}" value="{{$q.Answer}}"
+                                        class="input-field w-full..." placeholder="Jawaban singkat...">
+                                        
+                                {{else if eq $q.QuestionType "text_long"}}
+                                    <textarea name="answer_{{$q.ID}}" rows="3"
+                                        class="input-field w-full..." placeholder="Jelaskan jawaban Anda...">{{$q.Answer}}</textarea>
+                                        
+                                {{else if eq $q.QuestionType "radio"}}
+                                    <div class="space-y-2">
+                                        {{$options := split $q.Options "\n"}}
+                                        {{range $opt := $options}}
+                                        <label class="flex items-center gap-3 p-3 bg-bg rounded-lg border border-border cursor-pointer hover:border-accent">
+                                            <input type="radio" name="answer_{{$q.ID}}" value="{{$opt}}"
+                                                {{if eq $q.Answer $opt}}checked{{end}}>
+                                            <span>{{$opt}}</span>
+                                        </label>
+                                        {{end}}
+                                    </div>
+                                    
+                                {{else if eq $q.QuestionType "checkbox"}}
+                                    <div class="space-y-2">
+                                        {{$options := split $q.Options "\n"}}
+                                        {{range $opt := $options}}
+                                        <label class="flex items-center gap-3 p-3 bg-bg rounded-lg border border-border cursor-pointer hover:border-accent">
+                                            <input type="checkbox" name="answer_{{$q.ID}}" value="{{$opt}}"
+                                                {{if contains $q.Answer $opt}}checked{{end}}>
+                                            <span>{{$opt}}</span>
+                                        </label>
+                                        {{end}}
+                                    </div>
+                                    
+                                {{else if eq $q.QuestionType "file"}}
+                                    <input type="file" name="answer_{{$q.ID}}" 
+                                        class="block w-full text-sm text-muted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-accent/10 file:text-accent hover:file:bg-accent/20">
+                                    {{if $q.Answer}}
+                                        <p class="text-xs text-muted mt-2">File saat ini: <a href="{{$q.Answer}}" class="text-accent underline" target="_blank">Lihat File</a></p>
+                                    {{end}}
+                                {{end}}
+                            </div>
                         </div>
                     </div>
                 </div>
