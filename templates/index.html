@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Requirement Collector</title>
-    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,12 +11,14 @@
             theme: {
                 extend: {
                     colors: {
-                        bg: '#0a0a0f',
+                        bg: '#080810',
                         fg: '#e8e8ed',
-                        muted: '#6b7280',
-                        accent: '#00d4aa',
-                        card: '#14141f',
-                        border: '#2a2a3a',
+                        muted: '#7a8599',
+                        accent: '#00e5b8',
+                        'accent-alt': '#00b894',
+                        card: '#0f0f1a',
+                        border: '#1e1e30',
+                        'card-hover': '#141428',
                     },
                     fontFamily: {
                         display: ['Space Grotesk', 'sans-serif'],
@@ -29,104 +30,565 @@
     </script>
     <style>
         * { font-family: 'Space Grotesk', sans-serif; }
-        body { background: #0a0a0f; }
+        body { 
+            background: #080810; 
+            overflow-x: hidden;
+        }
         
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #080810; }
+        ::-webkit-scrollbar-thumb { background: #1e1e30; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00e5b8; }
+        
+        /* Hero Background */
         .hero-bg {
+            background: #080810;
+            position: relative;
+        }
+        
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
             background: 
-                radial-gradient(ellipse at 20% 0%, rgba(0, 212, 170, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 100%, rgba(0, 212, 170, 0.1) 0%, transparent 40%),
-                linear-gradient(180deg, #0a0a0f 0%, #0f0f18 100%);
+                radial-gradient(ellipse 80% 50% at 20% -10%, rgba(0, 229, 184, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 110%, rgba(0, 184, 148, 0.08) 0%, transparent 50%);
+            pointer-events: none;
         }
         
-        .grid-pattern {
+        /* Animated Grid */
+        .grid-animated {
+            position: absolute;
+            inset: 0;
             background-image: 
-                linear-gradient(rgba(42, 42, 58, 0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(42, 42, 58, 0.3) 1px, transparent 1px);
-            background-size: 60px 60px;
+                linear-gradient(rgba(30, 30, 48, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 30, 48, 0.4) 1px, transparent 1px);
+            background-size: 80px 80px;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
         }
         
-        .glow-line {
-            height: 1px;
-            background: linear-gradient(90deg, transparent 0%, #00d4aa 50%, transparent 100%);
-            opacity: 0.5;
+        .grid-animated::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: inherit;
+            animation: gridMove 20s linear infinite;
         }
         
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(80px, 80px); }
+        }
+        
+        /* Floating Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: orbFloat 15s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(0, 229, 184, 0.15);
+            top: -10%;
+            left: -5%;
+            animation-delay: 0s;
+        }
+        
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(0, 184, 148, 0.1);
+            bottom: 20%;
+            right: -10%;
+            animation-delay: -5s;
+        }
+        
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: rgba(0, 229, 184, 0.08);
+            top: 50%;
+            left: 30%;
+            animation-delay: -10s;
+        }
+        
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 30px) scale(1.02); }
+        }
+        
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Button Styles */
         .btn-primary {
-            background: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%);
-            transition: all 0.3s ease;
+            position: relative;
+            background: linear-gradient(135deg, #00e5b8 0%, #00b894 100%);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #00ffcc 0%, #00e5b8 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.3);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 15px 40px rgba(0, 229, 184, 0.25),
+                0 5px 15px rgba(0, 229, 184, 0.15);
         }
         
-        .card-hover {
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+        
+        .btn-primary:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
+        .btn-primary span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn-secondary {
+            position: relative;
+            background: transparent;
+            border: 1px solid #1e1e30;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+        
+        .btn-secondary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 229, 184, 0.1) 0%, rgba(0, 184, 148, 0.05) 100%);
+            transform: translateX(-100%);
+            transition: transform 0.4s ease;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #00e5b8;
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 229, 184, 0.1);
+        }
+        
+        .btn-secondary:hover::before {
+            transform: translateX(0);
+        }
+        
+        .btn-secondary span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Card Styles */
+        .feature-card {
+            position: relative;
+            background: linear-gradient(135deg, #0f0f1a 0%, #0a0a12 100%);
+            border: 1px solid #1e1e30;
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(135deg, transparent 40%, rgba(0, 229, 184, 0.3) 50%, transparent 60%);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            background-size: 200% 200%;
+            animation: borderShift 3s linear infinite;
+        }
+        
+        @keyframes borderShift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 200%; }
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 229, 184, 0.5), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover::after {
+            opacity: 1;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px) rotateX(2deg);
+            border-color: rgba(0, 229, 184, 0.3);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(0, 229, 184, 0.1),
+                0 0 60px rgba(0, 229, 184, 0.05);
+        }
+        
+        .feature-card .card-glow {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(0, 229, 184, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+        
+        .feature-card:hover .card-glow {
+            opacity: 1;
+        }
+        
+        .card-icon {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(0, 229, 184, 0.1) 0%, rgba(0, 184, 148, 0.05) 100%);
+            border: 1px solid rgba(0, 229, 184, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+        }
+        
+        .feature-card:hover .card-icon {
+            transform: scale(1.1) rotate(-5deg);
+            background: linear-gradient(135deg, rgba(0, 229, 184, 0.2) 0%, rgba(0, 184, 148, 0.1) 100%);
+            box-shadow: 0 0 30px rgba(0, 229, 184, 0.2);
+        }
+        
+        .card-icon svg {
+            transition: all 0.4s ease;
+        }
+        
+        .feature-card:hover .card-icon svg {
+            transform: scale(1.1);
+        }
+        
+        /* Terminal Card */
+        .terminal-card {
+            background: linear-gradient(135deg, #0f0f1a 0%, #0a0a12 100%);
+            border: 1px solid #1e1e30;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .terminal-card:hover {
+            border-color: rgba(0, 229, 184, 0.3);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(0, 229, 184, 0.05);
+        }
+        
+        .terminal-header {
+            background: linear-gradient(90deg, #0a0a12, #141420);
+            padding: 12px 16px;
+            border-bottom: 1px solid #1e1e30;
+        }
+        
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .terminal-dot:hover {
+            transform: scale(1.2);
+        }
+        
+        .terminal-line {
+            padding: 12px 16px;
+            border-left: 2px solid transparent;
             transition: all 0.3s ease;
         }
         
-        .card-hover:hover {
-            transform: translateY(-4px);
-            border-color: #00d4aa;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        .terminal-line:hover {
+            background: rgba(0, 229, 184, 0.03);
+            border-left-color: #00e5b8;
         }
         
-        .float-animation {
-            animation: float 6s ease-in-out infinite;
+        .terminal-line.active {
+            border-left-color: #00e5b8;
+            background: rgba(0, 229, 184, 0.05);
         }
         
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        /* Progress Bar Animation */
+        .progress-bar {
+            height: 4px;
+            background: #1e1e30;
+            border-radius: 2px;
+            overflow: hidden;
         }
         
-        .fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00e5b8, #00ffcc, #00e5b8);
+            background-size: 200% 100%;
+            animation: progressShimmer 2s linear infinite;
+            border-radius: 2px;
+        }
+        
+        @keyframes progressShimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Stats Counter Animation */
+        .stat-item {
+            position: relative;
+            padding: 2rem;
+            transition: all 0.4s ease;
+        }
+        
+        .stat-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00e5b8, transparent);
+            transition: width 0.4s ease;
+        }
+        
+        .stat-item:hover::after {
+            width: 60%;
+        }
+        
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00e5b8 0%, #00ffcc 50%, #00e5b8 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textShimmer 3s linear infinite;
+        }
+        
+        @keyframes textShimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+        
+        /* Scroll Reveal */
+        .reveal {
             opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        @keyframes fadeIn {
-            to { opacity: 1; }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
         
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+        
+        /* Nav Blur */
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(8, 8, 16, 0.8);
+        }
+        
+        /* Logo Animation */
+        .logo-icon {
+            transition: all 0.4s ease;
+        }
+        
+        .logo-icon:hover {
+            transform: rotate(-10deg) scale(1.1);
+        }
+        
+        /* Typing Effect */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: #00e5b8;
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Magnetic Button Effect */
+        .magnetic-btn {
+            transition: transform 0.3s ease;
+        }
+        
+        /* Floating Animation */
+        .float-anim {
+            animation: floatAnim 6s ease-in-out infinite;
+        }
+        
+        @keyframes floatAnim {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(1deg); }
+            50% { transform: translateY(-15px) rotate(0deg); }
+            75% { transform: translateY(-5px) rotate(-1deg); }
+        }
+        
+        /* Pulse Ring */
+        .pulse-ring {
+            position: relative;
+        }
+        
+        .pulse-ring::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid #00e5b8;
+            opacity: 0;
+            animation: pulseRing 2s ease-out infinite;
+        }
+        
+        @keyframes pulseRing {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+        
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Focus States */
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid #00e5b8;
+            outline-offset: 2px;
+        }
+        
+        /* Decorative Shapes */
+        .deco-shape {
+            position: absolute;
+            opacity: 0.03;
+            pointer-events: none;
+        }
+        
+        .deco-shape-1 {
+            width: 500px;
+            height: 500px;
+            border: 1px solid #00e5b8;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            top: 10%;
+            right: -10%;
+            animation: morphShape 20s linear infinite;
+        }
+        
+        @keyframes morphShape {
+            0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            25% { border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%; }
+            50% { border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%; }
+            75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
+        }
     </style>
 </head>
 <body class="text-fg min-h-screen">
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas" aria-hidden="true"></canvas>
+    
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-bg/80 backdrop-blur-xl border-b border-border">
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-border">
         <div class="max-w-7xl mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
-                <a href="/" class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-emerald-600 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="/" class="flex items-center gap-3 group" aria-label="BRC Home">
+                    <div class="logo-icon w-11 h-11 rounded-xl bg-gradient-to-br from-accent to-accent-alt flex items-center justify-center shadow-lg shadow-accent/20">
+                        <svg class="w-6 h-6 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
-                    <span class="font-display font-semibold text-xl">BRC</span>
+                    <span class="font-display font-bold text-xl tracking-tight group-hover:text-accent transition-colors">BRC</span>
                 </a>
-                <div class="flex items-center gap-4">
-                    <a href="/login" class="px-4 py-2 text-muted hover:text-fg transition-colors">Login</a>
-                    <a href="/register" class="btn-primary px-6 py-2.5 rounded-lg font-medium text-bg">Get Started</a>
+                <div class="flex items-center gap-3">
+                    <a href="/login" class="magnetic-btn px-5 py-2.5 text-muted hover:text-fg transition-colors font-medium">Login</a>
+                    <a href="/register" class="btn-primary px-6 py-2.5 rounded-xl font-semibold text-bg">
+                        <span>Get Started</span>
+                    </a>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero-bg grid-pattern min-h-screen flex items-center pt-20">
-        <div class="max-w-7xl mx-auto px-6 py-20">
+    <section class="hero-bg min-h-screen flex items-center pt-20 relative overflow-hidden">
+        <div class="grid-animated" aria-hidden="true"></div>
+        <div class="orb orb-1" aria-hidden="true"></div>
+        <div class="orb orb-2" aria-hidden="true"></div>
+        <div class="orb orb-3" aria-hidden="true"></div>
+        <div class="deco-shape deco-shape-1" aria-hidden="true"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 py-20 relative z-10">
             <div class="grid lg:grid-cols-2 gap-16 items-center">
-                <div class="fade-in">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border mb-8">
-                        <span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+                <div class="reveal">
+                    <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-card border border-border mb-8 hover:border-accent/30 transition-colors">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+                        </span>
                         <span class="text-sm text-muted">AI-Powered Requirements Gathering</span>
                     </div>
                     
-                    <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+                    <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6 tracking-tight">
                         Business<br>
                         <span class="text-accent">Requirement</span><br>
                         Collector
@@ -137,130 +599,144 @@
                     </p>
                     
                     <div class="flex flex-wrap gap-4">
-                        <a href="/register" class="btn-primary px-8 py-4 rounded-xl font-semibold text-bg inline-flex items-center gap-2">
-                            Mulai Sekarang
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="/register" class="btn-primary px-8 py-4 rounded-xl font-semibold text-bg inline-flex items-center gap-3 text-lg">
+                            <span>Mulai Sekarang</span>
+                            <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                             </svg>
                         </a>
-                        <a href="#features" class="px-8 py-4 rounded-xl border border-border hover:border-accent transition-colors">
-                            Pelajari Lebih
+                        <a href="#features" class="btn-secondary px-8 py-4 rounded-xl font-medium">
+                            <span>Pelajari Lebih</span>
                         </a>
                     </div>
                 </div>
                 
-                <div class="relative fade-in delay-200">
-                    <div class="float-animation">
-                        <div class="bg-card rounded-2xl border border-border p-6 shadow-2xl">
-                            <div class="flex items-center gap-3 mb-6">
+                <div class="relative reveal reveal-delay-2">
+                    <div class="float-anim">
+                        <div class="terminal-card">
+                            <div class="terminal-header flex items-center justify-between">
                                 <div class="flex gap-2">
-                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                    <div class="terminal-dot bg-red-500/80"></div>
+                                    <div class="terminal-dot bg-yellow-500/80"></div>
+                                    <div class="terminal-dot bg-green-500/80"></div>
                                 </div>
-                                <span class="text-sm text-muted font-mono">questionnaire.brc</span>
+                                <span class="text-xs text-muted font-mono tracking-wider">questionnaire.brc</span>
+                                <div class="w-16"></div>
                             </div>
-                            <div class="space-y-4">
-                                <div class="p-4 bg-bg/50 rounded-lg border border-border">
-                                    <span class="text-xs text-accent font-mono">Business Modeling</span>
-                                    <p class="mt-2 text-sm">Apa visi utama dari bisnis ini?</p>
+                            <div class="p-4 space-y-3">
+                                <div class="terminal-line rounded-lg bg-bg/50 border border-border">
+                                    <span class="text-xs text-accent font-mono font-medium">Business Modeling</span>
+                                    <p class="mt-2 text-sm text-fg/80">Apa visi utama dari bisnis ini?</p>
                                 </div>
-                                <div class="p-4 bg-bg/50 rounded-lg border border-accent/50">
-                                    <span class="text-xs text-accent font-mono">System Requirement</span>
-                                    <p class="mt-2 text-sm">Fitur apa yang paling prioritas?</p>
+                                <div class="terminal-line active rounded-lg bg-accent/5 border border-accent/30">
+                                    <span class="text-xs text-accent font-mono font-medium">System Requirement</span>
+                                    <p class="mt-2 text-sm text-fg/80">Fitur apa yang paling prioritas?</p>
                                 </div>
-                                <div class="p-4 bg-bg/50 rounded-lg border border-border">
-                                    <span class="text-xs text-muted font-mono">Generating...</span>
-                                    <div class="mt-2 h-4 bg-border rounded overflow-hidden">
-                                        <div class="h-full w-3/4 bg-gradient-to-r from-accent to-emerald-500 animate-pulse"></div>
+                                <div class="terminal-line rounded-lg bg-bg/50 border border-border">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs text-muted font-mono">Generating output...</span>
+                                        <span class="text-xs text-accent font-mono">78%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 78%"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Decorative elements -->
-                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-accent/10 rounded-full blur-3xl"></div>
-                    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl"></div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section id="features" class="py-24 bg-bg">
+    <section id="features" class="py-32 relative">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">Fitur Utama</h2>
-                <p class="text-muted text-lg max-w-2xl mx-auto">Solusi lengkap untuk pengumpulan dan dokumentasi kebutuhan bisnis</p>
+            <div class="text-center mb-20 reveal">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">Fitur Unggulan</span>
+                <h2 class="font-display text-4xl md:text-5xl font-bold mb-4 tracking-tight">Solusi Lengkap</h2>
+                <p class="text-muted text-lg max-w-2xl mx-auto">Transformasi digital untuk pengumpulan dan dokumentasi kebutuhan bisnis</p>
             </div>
             
             <div class="grid md:grid-cols-3 gap-8">
-                <div class="card-hover bg-card rounded-2xl border border-border p-8">
-                    <div class="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center mb-6">
-                        <svg class="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Card 1 -->
+                <div class="feature-card reveal reveal-delay-1" data-tilt>
+                    <div class="card-glow"></div>
+                    <div class="card-icon mb-6">
+                        <svg class="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                         </svg>
                     </div>
-                    <h3 class="font-display text-xl font-semibold mb-3">AI-Generated Questions</h3>
-                    <p class="text-muted leading-relaxed">Generate 100 pertanyaan otomatis untuk Business Modeling dan System Requirement Modeling menggunakan Gemini AI.</p>
+                    <h3 class="font-display text-xl font-semibold mb-3 tracking-tight">AI-Generated Questions</h3>
+                    <p class="text-muted leading-relaxed text-sm">Generate 100 pertanyaan otomatis untuk Business Modeling dan System Requirement Modeling menggunakan Gemini AI.</p>
                 </div>
                 
-                <div class="card-hover bg-card rounded-2xl border border-border p-8">
-                    <div class="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center mb-6">
-                        <svg class="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Card 2 -->
+                <div class="feature-card reveal reveal-delay-2" data-tilt>
+                    <div class="card-glow"></div>
+                    <div class="card-icon mb-6">
+                        <svg class="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
                         </svg>
                     </div>
-                    <h3 class="font-display text-xl font-semibold mb-3">Shareable Forms</h3>
-                    <p class="text-muted leading-relaxed">Bagikan questionnaire ke client dalam bentuk link yang mudah diakses, seperti Google Forms.</p>
+                    <h3 class="font-display text-xl font-semibold mb-3 tracking-tight">Shareable Forms</h3>
+                    <p class="text-muted leading-relaxed text-sm">Bagikan questionnaire ke client dalam bentuk link yang mudah diakses, seperti Google Forms.</p>
                 </div>
                 
-                <div class="card-hover bg-card rounded-2xl border border-border p-8">
-                    <div class="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center mb-6">
-                        <svg class="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Card 3 -->
+                <div class="feature-card reveal reveal-delay-3" data-tilt>
+                    <div class="card-glow"></div>
+                    <div class="card-icon mb-6">
+                        <svg class="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
-                    <h3 class="font-display text-xl font-semibold mb-3">Auto Documentation</h3>
-                    <p class="text-muted leading-relaxed">Generate dokumen BM dan SRM secara otomatis dari jawaban client dengan format baku yang profesional.</p>
+                    <h3 class="font-display text-xl font-semibold mb-3 tracking-tight">Auto Documentation</h3>
+                    <p class="text-muted leading-relaxed text-sm">Generate dokumen BM dan SRM secara otomatis dari jawaban client dengan format baku yang profesional.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Stats Section -->
-    <section class="py-16 border-y border-border">
-        <div class="max-w-7xl mx-auto px-6">
+    <section class="py-20 border-y border-border relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div class="text-center">
-                    <div class="font-display text-4xl md:text-5xl font-bold text-accent">100</div>
-                    <div class="text-muted mt-2">Pertanyaan/Form</div>
+                <div class="stat-item text-center reveal reveal-delay-1">
+                    <div class="stat-number font-display" data-count="100">0</div>
+                    <div class="text-muted mt-2 text-sm font-medium">Pertanyaan/Form</div>
                 </div>
-                <div class="text-center">
-                    <div class="font-display text-4xl md:text-5xl font-bold text-accent">2</div>
-                    <div class="text-muted mt-2">Dokumen Output</div>
+                <div class="stat-item text-center reveal reveal-delay-2">
+                    <div class="stat-number font-display" data-count="2">0</div>
+                    <div class="text-muted mt-2 text-sm font-medium">Dokumen Output</div>
                 </div>
-                <div class="text-center">
-                    <div class="font-display text-4xl md:text-5xl font-bold text-accent">AI</div>
-                    <div class="text-muted mt-2">Powered</div>
+                <div class="stat-item text-center reveal reveal-delay-3">
+                    <div class="stat-number font-display">AI</div>
+                    <div class="text-muted mt-2 text-sm font-medium">Powered</div>
                 </div>
-                <div class="text-center">
-                    <div class="font-display text-4xl md:text-5xl font-bold text-accent">24/7</div>
-                    <div class="text-muted mt-2">Accessible</div>
+                <div class="stat-item text-center reveal reveal-delay-4">
+                    <div class="stat-number font-display">24/7</div>
+                    <div class="text-muted mt-2 text-sm font-medium">Accessible</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="py-24 hero-bg">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            <h2 class="font-display text-4xl md:text-5xl font-bold mb-6">Siap Memulai?</h2>
-            <p class="text-xl text-muted mb-10">Buat akun dan mulai kumpulkan kebutuhan bisnis dengan cara yang lebih efisien.</p>
-            <a href="/register" class="btn-primary px-10 py-4 rounded-xl font-semibold text-bg inline-flex items-center gap-2 text-lg">
-                Buat Akun Gratis
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <section class="py-32 relative overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute inset-0 bg-gradient-to-b from-bg via-transparent to-bg"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[100px]"></div>
+        </div>
+        
+        <div class="max-w-4xl mx-auto px-6 text-center relative z-10 reveal">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6">Siap Memulai?</span>
+            <h2 class="font-display text-4xl md:text-5xl font-bold mb-6 tracking-tight">Transformasi Cara Kerja Anda</h2>
+            <p class="text-xl text-muted mb-10 max-w-2xl mx-auto">Buat akun dan mulai kumpulkan kebutuhan bisnis dengan cara yang lebih efisien dan profesional.</p>
+            <a href="/register" class="btn-primary px-10 py-4 rounded-xl font-semibold text-bg inline-flex items-center gap-3 text-lg">
+                <span>Buat Akun Gratis</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                 </svg>
             </a>
@@ -271,17 +747,243 @@
     <footer class="py-8 border-t border-border">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-emerald-600 flex items-center justify-center">
-                        <svg class="w-4 h-4 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="/" class="flex items-center gap-3 group">
+                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent to-accent-alt flex items-center justify-center shadow-lg shadow-accent/20">
+                        <svg class="w-4 h-4 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
-                    <span class="font-display font-semibold">Business Requirement Collector</span>
-                </div>
-                <div class="text-muted text-sm">Powered by Gemini AI</div>
+                    <span class="font-display font-semibold">Created by ballbot.space</span>
+                </a>
             </div>
         </div>
     </footer>
+
+    <script>
+        // Initialize variables first
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: 0, y: 0 };
+        let animationFrameId = null;
+        
+        // Check for reduced motion preference
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        // Particle System
+        function initParticles() {
+            if (prefersReducedMotion) return;
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            
+            const particleCount = Math.min(80, Math.floor(window.innerWidth / 20));
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.max(1, Math.random() * 2 + 0.5),
+                    speedX: (Math.random() - 0.5) * 0.5,
+                    speedY: (Math.random() - 0.5) * 0.5,
+                    opacity: Math.random() * 0.5 + 0.2
+                });
+            }
+        }
+        
+        function animateParticles() {
+            if (prefersReducedMotion) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach((particle, index) => {
+                particle.x += particle.speedX;
+                particle.y += particle.speedY;
+                
+                // Mouse interaction
+                const dx = mouse.x - particle.x;
+                const dy = mouse.y - particle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 150) {
+                    const force = (150 - distance) / 150;
+                    particle.x -= dx * force * 0.02;
+                    particle.y -= dy * force * 0.02;
+                }
+                
+                // Wrap around
+                if (particle.x < 0) particle.x = canvas.width;
+                if (particle.x > canvas.width) particle.x = 0;
+                if (particle.y < 0) particle.y = canvas.height;
+                if (particle.y > canvas.height) particle.y = 0;
+                
+                // Draw particle
+                const safeSize = Math.max(0.5, particle.size);
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, safeSize, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 229, 184, ${particle.opacity})`;
+                ctx.fill();
+                
+                // Connect nearby particles
+                particles.slice(index + 1).forEach(otherParticle => {
+                    const dx2 = particle.x - otherParticle.x;
+                    const dy2 = particle.y - otherParticle.y;
+                    const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+                    
+                    if (distance2 < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(otherParticle.x, otherParticle.y);
+                        const alpha = Math.max(0, Math.min(0.15, (1 - distance2 / 120) * 0.15));
+                        ctx.strokeStyle = `rgba(0, 229, 184, ${alpha})`;
+                        ctx.stroke();
+                    }
+                });
+            });
+            
+            animationFrameId = requestAnimationFrame(animateParticles);
+        }
+        
+        // Mouse tracking
+        document.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+        
+        // Resize handler
+        window.addEventListener('resize', () => {
+            initParticles();
+        });
+        
+        // Initialize particles
+        initParticles();
+        animateParticles();
+        
+        // Scroll Reveal
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+        
+        revealElements.forEach(el => revealObserver.observe(el));
+        
+        // Card Tilt Effect
+        const cards = document.querySelectorAll('[data-tilt]');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                if (prefersReducedMotion) return;
+                
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                // Update glow position
+                const glow = card.querySelector('.card-glow');
+                if (glow) {
+                    glow.style.left = x + 'px';
+                    glow.style.top = y + 'px';
+                }
+                
+                card.style.transform = `translateY(-8px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+            });
+        });
+        
+        // Counter Animation
+        const counters = document.querySelectorAll('[data-count]');
+        
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = parseInt(entry.target.dataset.count);
+                    let current = 0;
+                    const increment = target / 50;
+                    const duration = 1500;
+                    const stepTime = duration / 50;
+                    
+                    const updateCounter = () => {
+                        current += increment;
+                        if (current < target) {
+                            entry.target.textContent = Math.ceil(current);
+                            setTimeout(updateCounter, stepTime);
+                        } else {
+                            entry.target.textContent = target;
+                        }
+                    };
+                    
+                    updateCounter();
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        counters.forEach(counter => counterObserver.observe(counter));
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Magnetic button effect
+        const magneticBtns = document.querySelectorAll('.magnetic-btn');
+        
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                if (prefersReducedMotion) return;
+                
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate(0, 0)';
+            });
+        });
+        
+        // Nav background on scroll
+        const nav = document.querySelector('nav');
+        let lastScroll = 0;
+        
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 50) {
+                nav.style.borderBottomColor = 'rgba(30, 30, 48, 0.8)';
+            } else {
+                nav.style.borderBottomColor = '#1e1e30';
+            }
+            
+            lastScroll = currentScroll;
+        });
+    </script>
 </body>
 </html>

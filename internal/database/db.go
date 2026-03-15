@@ -504,11 +504,20 @@ func UpdateQuestion(qID int, text string, category string, qType string, options
 }
 
 func UpdateQuestionnaireStatus(qID int, status string) error {
-	_, err := DB.Exec(
+	res, err := DB.Exec(
 		"UPDATE questionnaires SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
 		status, qID,
 	)
-	return err
+	if err != nil {
+		log.Printf("Database error in UpdateQuestionnaireStatus: %v", err)
+		return err
+	}
+	count, _ := res.RowsAffected()
+	if count == 0 {
+		log.Printf("Warning: No rows affected when updating status for ID %d", qID)
+	}
+
+	return nil
 }
 
 func GetQuestionByID(qID int) (*models.Question, error) {

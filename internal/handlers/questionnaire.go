@@ -110,7 +110,6 @@ func ManageQuestionsHandler(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "manage_questions.html", data)
 }
 
-// QuestionnaireDetailHandler handles the detail view and unpublish action
 func QuestionnaireDetailHandler(w http.ResponseWriter, r *http.Request) {
 	user := GetUserFromContext(r)
 	if user == nil {
@@ -119,7 +118,6 @@ func QuestionnaireDetailHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract ID safely
-	// Expected path: /questionnaire/{id}
 	idStr := strings.TrimPrefix(r.URL.Path, "/questionnaire/")
 	idStr = strings.TrimSuffix(idStr, "/") // Handle trailing slash
 	id, err := strconv.Atoi(idStr)
@@ -139,17 +137,33 @@ func QuestionnaireDetailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Handle Unpublish Action
+	// Handle POST Actions (Publish & Unpublish)
 	if r.Method == "POST" {
 		action := r.FormValue("action")
+
 		if action == "unpublish" {
-			database.UpdateQuestionnaireStatus(id, "draft")
-			// Redirect to manage page after unpublish
-			http.Redirect(w, r, fmt.Sprintf("/questionnaire/%d/manage", id), http.StatusSeeOther)
+			err := database.UpdateQuestionnaireStatus(id, "draft")
+			if err != nil {
+				log.Printf("Error unpublishing: %v", err)
+			}
+			// Redirect back to detail page (which will show Draft state)
+			http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
+			return
+		}
+
+		if action == "publish" {
+			err := database.UpdateQuestionnaireStatus(id, "active")
+			if err != nil {
+				log.Printf("Error publishing: %v", err)
+				// Bisa tambahkan flash message error di sini jika perlu
+			}
+			// Redirect back to detail page (which will show Active state)
+			http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
 			return
 		}
 	}
 
+	// GET Logic
 	questions, _ := database.GetQuestionsByQuestionnaire(id)
 	sessions, _ := database.GetClientSessionsByQuestionnaire(id)
 
@@ -184,7 +198,6 @@ func QuestionnaireDetailHandler(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "questionnaire_detail.html", data)
 }
 
-// CreateQuestionnaireHandler handles creation (AI & Manual)
 func CreateQuestionnaireHandler(w http.ResponseWriter, r *http.Request) {
 	user := GetUserFromContext(r)
 	if user == nil {

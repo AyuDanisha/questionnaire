@@ -11,12 +11,8 @@
             theme: {
                 extend: {
                     colors: {
-                        bg: '#0a0a0f',
-                        fg: '#e8e8ed',
-                        muted: '#6b7280',
-                        accent: '#00d4aa',
-                        card: '#14141f',
-                        border: '#2a2a3a',
+                        bg: '#0a0a0f', fg: '#e8e8ed', muted: '#6b7280', accent: '#00d4aa',
+                        card: '#14141f', border: '#2a2a3a',
                     }
                 }
             }
@@ -26,82 +22,112 @@
         * { font-family: 'Space Grotesk', sans-serif; }
         body { background: #0a0a0f; }
         
-        .btn-primary {
-            background: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%);
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0f; }
+        ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 3px; }
+        
+        /* Input Styles */
+        .input-field {
             transition: all 0.3s ease;
+            background: #0a0a0f;
+            border: 1px solid #2a2a3a;
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.3);
-        }
-        
-        .btn-secondary {
-            transition: all 0.3s ease;
-        }
-        
-        .btn-secondary:hover {
-            border-color: #00d4aa;
-        }
-        
         .input-field:focus {
             border-color: #00d4aa;
-            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.15);
+            outline: none;
+        }
+
+        /* Card Animation */
+        .q-card {
+            transition: all 0.3s ease;
+            border: 1px solid #2a2a3a;
+        }
+        .q-card:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+        }
+
+        /* ================================================== */
+        /* CUSTOM RADIO & CHECKBOX LOGIC (CSS ONLY)          */
+        /* ================================================== */
+        
+        /* 1. Sembunyikan input tapi tetap bisa diklik (sr-only) */
+        .custom-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* 2. Style dasar untuk box pembungkus */
+        .choice-box {
+            border: 1px solid #2a2a3a;
+            background: rgba(10, 10, 15, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        /* 3. Efek Hover */
+        .choice-label:hover .choice-box {
+            border-color: rgba(0, 212, 170, 0.5);
+            background: rgba(0, 212, 170, 0.02);
+        }
+
+        /* 4. Style saat input CHECKED (Menggunakan sibling selector ~) */
+        
+        /* Border berubah warna */
+        .custom-input:checked ~ .choice-box {
+            border-color: #00d4aa !important;
+            background: rgba(0, 212, 170, 0.05);
         }
         
-        .progress-track {
-            background: rgba(42, 42, 58, 0.5);
+        /* Animasi Icon Centang (Checkbox) */
+        .custom-input:checked ~ .choice-box .check-icon {
+            opacity: 1;
+            transform: scale(1);
         }
-        
-        .progress-fill {
-            background: linear-gradient(90deg, #00d4aa, #00a88a);
-            transition: width 0.5s ease;
+
+        /* Animasi Dot (Radio) */
+        .custom-input:checked ~ .choice-box .radio-dot {
+            transform: scale(1);
         }
-        
-        .question-card {
-            animation: slideIn 0.4s ease forwards;
+
+        /* File Upload Styles */
+        .file-upload-area {
+            border: 2px dashed #2a2a3a;
+            transition: all 0.3s ease;
+        }
+        .file-upload-area:hover {
+            border-color: #00d4aa;
+            background: rgba(0, 212, 170, 0.02);
+        }
+        .file-upload-area input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Progress Bar Animation */
+        .progress-bar {
+            background: linear-gradient(90deg, #00d4aa 0%, #00a88a 100%);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Fade in animation */
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease forwards;
             opacity: 0;
         }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .stagger-1 { animation-delay: 0.05s; }
-        .stagger-2 { animation-delay: 0.1s; }
-        .stagger-3 { animation-delay: 0.15s; }
-        .stagger-4 { animation-delay: 0.2s; }
-        .stagger-5 { animation-delay: 0.25s; }
-        .stagger-6 { animation-delay: 0.3s; }
-        .stagger-7 { animation-delay: 0.35s; }
-        .stagger-8 { animation-delay: 0.4s; }
-        .stagger-9 { animation-delay: 0.45s; }
-        .stagger-10 { animation-delay: 0.5s; }
-        
-        .autosave-indicator {
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-        
-        .category-badge-bm {
-            background: rgba(0, 212, 170, 0.1);
-            color: #00d4aa;
-        }
-        
-        .category-badge-srm {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -111,21 +137,21 @@
         <div class="max-w-4xl mx-auto px-6 py-4">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h1 class="font-display font-semibold">{{.Questionnaire.Title}}</h1>
-                    <p class="text-sm text-muted">{{.ClientSession.ClientName}} | {{.ClientSession.ClientEmail}}</p>
+                    <h1 class="font-display font-semibold text-lg text-fg">{{.Questionnaire.Title}}</h1>
+                    <p class="text-sm text-muted">{{.ClientSession.ClientName}}</p>
                 </div>
                 <div class="flex items-center gap-2 text-sm">
-                    <span class="autosave-indicator text-muted">Auto-save aktif</span>
-                    <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                    <div class="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
+                    <span class="text-muted">Auto-save</span>
                 </div>
             </div>
             
             <!-- Progress Bar -->
             <div class="flex items-center gap-4">
-                <div class="flex-1 progress-track h-2 rounded-full overflow-hidden">
-                    <div class="progress-fill h-full rounded-full" id="progressBar" style="width: 0%"></div>
+                <div class="flex-1 progress-track h-2 rounded-full overflow-hidden bg-border/50">
+                    <div class="progress-bar h-full rounded-full" id="progressBar" style="width: 0%"></div>
                 </div>
-                <span class="text-sm font-mono text-muted" id="progressText">0%</span>
+                <span class="text-xs font-mono text-muted w-10 text-right" id="progressText">0%</span>
             </div>
         </div>
     </header>
@@ -134,8 +160,8 @@
         <!-- Page Info -->
         <div class="flex items-center justify-between mb-8">
             <div>
-                <span class="text-muted">Halaman</span>
-                <span class="font-display text-2xl font-bold ml-2">{{.Page}}/{{.TotalPages}}</span>
+                <span class="text-muted text-sm">Halaman</span>
+                <span class="font-display text-2xl font-bold ml-2 text-fg">{{.Page}}/{{.TotalPages}}</span>
             </div>
             <div class="text-sm text-muted">
                 Pertanyaan {{.StartNumber}} - {{.EndNumber}} dari {{.TotalQuestions}}
@@ -143,87 +169,115 @@
         </div>
 
         <!-- Form -->
-        <form method="POST" action="" id="questionnaireForm">
-            <div class="space-y-6 mb-10">
+        <form method="POST" action="" id="questionnaireForm" enctype="multipart/form-data">
+            <div class="space-y-8 mb-10">
                 {{range $index, $q := .Questions}}
-                <div class="question-card stagger-{{add $index 1}} bg-card rounded-2xl border border-border p-6">
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-bg flex items-center justify-center font-mono text-sm">
+                <div class="q-card bg-card rounded-2xl p-6 fade-in-up" style="animation-delay: {{$index}}00ms">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center font-mono text-sm font-bold text-accent">
                             {{add $.StartNumber $index}}
                         </div>
                         <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-3">
-                                <!-- <span class="px-2 py-1 rounded text-xs font-medium {{if eq $q.Category "BM"}} category-badge-bm{{else}}category-badge-srm{{end}}">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="px-2 py-1 rounded text-xs font-medium {{if eq $q.Category "BM"}}bg-accent/10 text-accent{{else}}bg-blue-500/10 text-blue-400{{end}}">
                                     {{$q.Category}}
-                                </span> -->
-                            </div>
-                            <p class="mb-4">{{$q.QuestionText}}</p>
-                            <div class="mt-2">
-                                {{if eq $q.QuestionType "text_short"}}
-                                    <input type="text" name="answer_{{$q.ID}}" value="{{$q.Answer}}"
-                                        class="input-field w-full..." placeholder="Jawaban singkat...">
-                                        
-                                {{else if eq $q.QuestionType "text_long"}}
-                                    <textarea name="answer_{{$q.ID}}" rows="3"
-                                        class="input-field w-full..." placeholder="Jelaskan jawaban Anda...">{{$q.Answer}}</textarea>
-                                        
-                                {{else if eq $q.QuestionType "radio"}}
-                                    <div class="space-y-2">
-                                        {{$options := split $q.Options "\n"}}
-                                        {{range $opt := $options}}
-                                        <label class="flex items-center gap-3 p-3 bg-bg rounded-lg border border-border cursor-pointer hover:border-accent">
-                                            <input type="radio" name="answer_{{$q.ID}}" value="{{$opt}}"
-                                                {{if eq $q.Answer $opt}}checked{{end}}>
-                                            <span>{{$opt}}</span>
-                                        </label>
-                                        {{end}}
-                                    </div>
-                                    
-                                {{else if eq $q.QuestionType "checkbox"}}
-                                    <div class="space-y-2">
-                                        {{$options := split $q.Options "\n"}}
-                                        {{range $opt := $options}}
-                                        <label class="flex items-center gap-3 p-3 bg-bg rounded-lg border border-border cursor-pointer hover:border-accent">
-                                            <input type="checkbox" name="answer_{{$q.ID}}" value="{{$opt}}"
-                                                {{if contains $q.Answer $opt}}checked{{end}}>
-                                            <span>{{$opt}}</span>
-                                        </label>
-                                        {{end}}
-                                    </div>
-                                    
-                                {{else if eq $q.QuestionType "file"}}
-                                    <input type="file" name="answer_{{$q.ID}}" 
-                                        class="block w-full text-sm text-muted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-accent/10 file:text-accent hover:file:bg-accent/20">
-                                    {{if $q.Answer}}
-                                        <p class="text-xs text-muted mt-2">File saat ini: <a href="{{$q.Answer}}" class="text-accent underline" target="_blank">Lihat File</a></p>
-                                    {{end}}
+                                </span>
+                                {{if eq $q.QuestionType "file"}}
+                                <span class="px-2 py-1 rounded text-xs font-medium bg-purple-500/10 text-purple-400">File Upload</span>
                                 {{end}}
                             </div>
+                            <p class="text-fg leading-relaxed">{{$q.QuestionText}}</p>
                         </div>
+                    </div>
+
+                    <!-- Response Area -->
+                    <div class="pl-0 md:pl-14 mt-2">
+                        {{if eq $q.QuestionType "text_short"}}
+                            <input type="text" name="answer_{{$q.ID}}" value="{{$q.Answer}}"
+                                class="input-field w-full px-4 py-3 rounded-xl text-fg"
+                                placeholder="Ketik jawaban singkat...">
+                        
+                        {{else if eq $q.QuestionType "text_long"}}
+                            <textarea name="answer_{{$q.ID}}" rows="4"
+                                class="input-field w-full px-4 py-3 rounded-xl text-fg resize-none"
+                                placeholder="Tuliskan jawaban Anda secara detail...">{{$q.Answer}}</textarea>
+                        
+                        {{else if eq $q.QuestionType "radio"}}
+                            <div class="space-y-3">
+                                {{$options := split $q.Options "\n"}}
+                                {{range $opt := $options}}
+                                <!-- PERBAIKAN: Label membungkus semua, input pakai class custom-input -->
+                                <label class="choice-label block relative cursor-pointer">
+                                    <input type="radio" name="answer_{{$q.ID}}" value="{{$opt}}" class="custom-input" {{if eq $q.Answer $opt}}checked{{end}}>
+                                    <div class="choice-box rounded-xl p-4 flex items-center gap-4">
+                                        <div class="w-5 h-5 rounded-full border-2 border-muted flex items-center justify-center transition-colors">
+                                            <!-- Dot indikator -->
+                                            <div class="radio-dot w-2.5 h-2.5 rounded-full bg-accent scale-0 transition-transform"></div>
+                                        </div>
+                                        <span class="text-fg">{{$opt}}</span>
+                                    </div>
+                                </label>
+                                {{end}}
+                            </div>
+
+                        {{else if eq $q.QuestionType "checkbox"}}
+                            <div class="space-y-3">
+                                {{$options := split $q.Options "\n"}}
+                                {{range $opt := $options}}
+                                <!-- PERBAIKAN: Sama seperti radio -->
+                                <label class="choice-label block relative cursor-pointer">
+                                    <input type="checkbox" name="answer_{{$q.ID}}" value="{{$opt}}" class="custom-input" {{if contains $q.Answer $opt}}checked{{end}}>
+                                    <div class="choice-box rounded-xl p-4 flex items-center gap-4">
+                                        <div class="w-5 h-5 rounded-md border-2 border-muted flex items-center justify-center transition-colors">
+                                            <!-- Centang indikator -->
+                                            <svg class="check-icon w-3 h-3 text-bg opacity-0 transform scale-0 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="text-fg">{{$opt}}</span>
+                                    </div>
+                                </label>
+                                {{end}}
+                            </div>
+
+                        {{else if eq $q.QuestionType "file"}}
+                            <div class="file-upload-area relative rounded-xl p-8 text-center">
+                                <input type="file" name="answer_{{$q.ID}}" id="file_{{$q.ID}}" onchange="updateFileName(this)">
+                                <svg class="w-10 h-10 mx-auto text-muted mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                <p class="text-muted text-sm mb-1">Klik untuk upload atau drag & drop</p>
+                                <p class="text-muted text-xs opacity-50" id="file_name_{{$q.ID}}">
+                                    {{if $q.Answer}}File: {{$q.Answer}}{{else}}SVG, PNG, JPG or PDF (MAX. 5MB){{end}}
+                                </p>
+                            </div>
+                        {{end}}
                     </div>
                 </div>
                 {{end}}
             </div>
 
             <!-- Navigation -->
-            <div class="flex flex-col sm:flex-row gap-4 sticky bottom-0 bg-bg/90 backdrop-blur-xl py-6 -mx-6 px-6 border-t border-border">
-                {{if gt .Page 1}}
-                <a href="?page={{sub .Page 1}}" class="btn-secondary px-6 py-3 border border-border rounded-xl font-medium text-center">
-                    ← Sebelumnya
-                </a>
-                {{end}}
-                
-                <button type="submit" name="action" value="save_later" class="btn-secondary px-6 py-3 border border-border rounded-xl font-medium">
-                    Simpan & Lanjutkan Nanti
-                </button>
-                
-                <button type="submit" name="action" value="save" class="btn-primary px-8 py-3 rounded-xl font-semibold text-bg flex-1">
-                    {{if eq .Page .TotalPages}}
-                    Submit Questionnaire
-                    {{else}}
-                    Selanjutnya →
+            <div class="sticky bottom-0 bg-bg/90 backdrop-blur-xl py-6 -mx-6 px-6 border-t border-border">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    {{if gt .Page 1}}
+                    <a href="?page={{sub .Page 1}}" class="px-6 py-3 border border-border rounded-xl font-medium text-center hover:border-accent transition-colors text-muted hover:text-fg">
+                        ← Sebelumnya
+                    </a>
                     {{end}}
-                </button>
+                    
+                    <button type="submit" name="action" value="save_later" class="px-6 py-3 border border-border rounded-xl font-medium hover:border-yellow-500 hover:text-yellow-400 transition-colors text-muted">
+                        Simpan & Lanjutkan Nanti
+                    </button>
+                    
+                    <button type="submit" name="action" value="save" class="btn-primary flex-1 px-8 py-3 rounded-xl font-semibold text-bg flex items-center justify-center gap-2 bg-gradient-to-r from-accent to-emerald-500">
+                        {{if eq .Page .TotalPages}}
+                        <span>Submit Questionnaire</span>
+                        {{else}}
+                        <span>Selanjutnya →</span>
+                        {{end}}
+                    </button>
+                </div>
             </div>
         </form>
     </main>
@@ -232,60 +286,29 @@
         // Progress calculation
         const totalPages = {{.TotalPages}};
         const currentPage = {{.Page}};
-        const questionsOnPage = document.querySelectorAll('textarea[data-question-id]');
         
         function updateProgress() {
             const progress = (currentPage / totalPages) * 100;
             document.getElementById('progressBar').style.width = progress + '%';
             document.getElementById('progressText').textContent = Math.round(progress) + '%';
         }
-        
         updateProgress();
-        
-        // Auto-save functionality
-        let saveTimeout;
-        const autoSaveIndicator = document.querySelector('.autosave-indicator');
-        
-        questionsOnPage.forEach(textarea => {
-            textarea.addEventListener('input', () => {
-                clearTimeout(saveTimeout);
-                autoSaveIndicator.textContent = 'Menyimpan...';
-                
-                saveTimeout = setTimeout(() => {
-                    autoSaveIndicator.textContent = 'Tersimpan';
-                    setTimeout(() => {
-                        autoSaveIndicator.textContent = 'Auto-save aktif';
-                    }, 1500);
-                }, 1000);
-            });
-        });
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + Enter to submit
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                document.getElementById('questionnaireForm').submit();
+
+        // File name update
+        function updateFileName(input) {
+            const id = input.id.replace('file_', '');
+            const fileNameSpan = document.getElementById('file_name_' + id);
+            if (input.files.length > 0) {
+                fileNameSpan.textContent = 'Dipilih: ' + input.files[0].name;
+                fileNameSpan.classList.add('text-accent');
             }
-        });
-        
-        // Warn before leaving with unsaved changes
-        let hasChanges = false;
-        questionsOnPage.forEach(textarea => {
-            textarea.addEventListener('input', () => {
-                hasChanges = true;
-            });
-        });
-        
-        window.addEventListener('beforeunload', (e) => {
-            if (hasChanges) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
-        });
-        
-        document.getElementById('questionnaireForm').addEventListener('submit', () => {
-            hasChanges = false;
-        });
+        }
+
+        /* 
+           Karena kita sudah memindahkan logika animasi ke CSS (:checked),
+           kita tidak perlu JavaScript listener lagi untuk Radio/Checkbox.
+           Ini membuat form lebih ringan dan pasti berfungsi.
+        */
     </script>
 </body>
 </html>
